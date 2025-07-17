@@ -42,6 +42,15 @@ with tab1:
         st.write("💼 **Experience:**")
         for exp in resume["experience"]:
             st.write(f"- {exp}")
+##
+        st.subheader("📄 (Optional) Upload Transcript")
+        transcript_file = st.file_uploader("Upload transcript PDF", type=["pdf"], key="transcript")
+
+        st.subheader("🧠 Onboarding Questions")
+        interest = st.text_area("Why are you interested in this field?")
+        strengths = st.text_area("What are your strengths?")
+        weaknesses = st.text_area("What are your weaknesses?")
+        goals = st.text_area("What are your short- and long-term goals")
 
     if st.session_state.resume_data:
         st.subheader("🎯 Choose Career Track & Role")
@@ -50,34 +59,71 @@ with tab1:
         roles = [r["title"] for r in career_tree["branches"][track]]
         role = st.selectbox("Choose your target role", roles)
         location = st.text_input("📍 Job Search Location", value="India")
-
+##
         if st.button("🚀 Run Career Mentorship Pipeline"):
-            state = {
-                "resume": st.session_state.resume_data,
-                "career_tree": {
-                    "track": track,
-                    "levels": career_tree["branches"][track]
-                },
-                "location": location,
-                "target_role": role
-            }
-            output = simple_graph.invoke(state)
-            st.session_state.graph_output = output
+            # Save transcript to file if uploaded
+            transcript_path = None
+            if transcript_file:
+                with open("temp_transcript.pdf", "wb") as f:
+                    f.write(transcript_file.read())
+                transcript_path = "temp_transcript.pdf"
 
-            st.success("Pipeline executed successfully!")
+            state = {
+                      "resume": st.session_state.resume_data,
+                      "career_tree": {
+                          **career_tree,
+                            "track": track
+                        },  # ✅ Pass the full tree now / actual user selected track 
+                      "location": location,
+                      "target_role": role,
+                      "transcript_path": transcript_path,
+                      "onboarding_answers": {
+                          "interest": interest,
+                          "strengths": strengths,
+                          "weaknesses": weaknesses,
+                          "goals": goals
+    }
+}
+
+
+            with st.spinner("Running mentorship pipeline..."):
+                output = simple_graph.invoke(state)
+                st.session_state.graph_output = output
+                st.success("Pipeline executed successfully!")
 
     if st.session_state.graph_output:
         out = st.session_state.graph_output
         st.subheader("🔍 Results")
+        out = st.session_state.graph_output
+
         st.markdown(f"**Matched Role:** {out['matched_role']}")
         st.markdown(f"**Current Level:** {out['current_level']}")
         st.markdown(f"**Next Role:** {out['next_role']}")
-        st.markdown("**Career Plan:**")
-        st.info(out["career_plan"])
-        st.markdown("**Top Job Trends:**")
-        st.success(out["job_trends"])
-        st.markdown("**Tailored Resume:**")
-        st.code(out["tailored_resume"])
+
+        if "career_plan" in out:
+            st.markdown("**Career Plan:**")
+            st.info(out["career_plan"])
+
+        if "job_trends" in out:
+            st.markdown("**Top Job Trends:**")
+            st.success(out["job_trends"])
+
+        if "skill_gap_summary" in out:
+            st.markdown("**Skill Gap Analysis:**")
+            st.warning(out["skill_gap_summary"])
+
+        if "interview_questions" in out:
+            st.markdown("**📋 Sample Interview Questions:**")
+            for i, q in enumerate(out["interview_questions"], 1):
+                st.markdown(f"{i}. {q}")
+
+        if "interview_feedback" in out:
+            st.markdown("**🧠 Interview Feedback:**")
+            st.info(out["interview_feedback"])
+
+        if "tailored_resume" in out:
+            st.markdown("**Tailored Resume:**")
+            st.code(out["tailored_resume"])
 
 with tab2:
     st.header("📄 Job Application Agent")
@@ -151,3 +197,4 @@ with tab3:
                 st.chat_message("user").write(msg)
             else:
                 st.chat_message("assistant").write(msg)
+        

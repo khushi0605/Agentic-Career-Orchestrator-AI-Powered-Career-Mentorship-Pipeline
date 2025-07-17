@@ -1,539 +1,3 @@
-# import os
-# import requests
-# import json
-# import fitz  # PyMuPDF
-# import spacy
-# import re
-# from langgraph.graph import StateGraph
-# from typing import TypedDict
-# from typing import List, Dict
-# from langchain_google_genai import ChatGoogleGenerativeAI
-# from dotenv import load_dotenv
-# from pprint import pprint
-
-# # defining state and typedict for the graph
-# class State(TypedDict, total=False):
-#     resume: dict
-#     career_tree: dict
-#     matched_role: str
-#     match_score: int
-#     current_level: int
-#     next_role: str
-#     career_plan: str
-#     job_trends: str
-#     tailored_resume: str
-#     location: str
-#     target_role: str  # optional (user can choose); overrides auto-next-role 
-# # Load Gemini API key
-# os.environ["GOOGLE_API_KEY"] = "AIzaSyAgf_aF8rXS8PuwKHlt3fKZaiX0VhfmTPc"
-# os.environ["SERP_API_KEY"] = "3ee5d2063d49c83e1501762e639777de6e6c87d6d5d4a14948147a37c8618a95"
-# os.environ["RAPIDAPI_KEY"] = "932d130a66mshea167e71c2f82cdp13e7dbjsnb26e597ef597"
-
-
-# # Initialize Gemini model
-# gemini = ChatGoogleGenerativeAI(model="gemini-2.5-flash-preview-04-17", temperature=0.3)
-
-# # for testing (predefined): 
-
-# # Mock resume data
-# # mock_resume = {
-# #     "name": "Khushi Mahesh",
-# #     "skills": ["Python", "Machine Learning", "Data Analysis", "Flask", "SQL"],
-# #     "experience": ["Data Science Intern at ABC Corp", "Research Assistant at PES"]
-# # }
-
-# # real resume data
-# nlp = spacy.load("en_core_web_sm")
-# def parse_resume_from_pdf(path: str) -> dict:
-#     doc = fitz.open(path)
-#     full_text = "\n".join(page.get_text() for page in doc)
-
-#     name = full_text.splitlines()[0].strip()  # naive approach, assume name at top
-
-#     # Extract skills (you can make this smarter)
-#     skill_keywords = [
-#         "Python", "Java", "C++", "SQL", "Flask", "React", "Django",
-#         "Machine Learning", "Deep Learning", "MLOps", "AWS", "Docker", "Git"
-#     ]
-#     skills = [kw for kw in skill_keywords if kw.lower() in full_text.lower()]
-
-#     # Extract experience lines (very basic)
-#     experience_lines = [line.strip() for line in full_text.splitlines() if "intern" in line.lower() or "engineer" in line.lower() or "developer" in line.lower()]
-
-#     return {
-#         "name": name,
-#         "skills": skills,
-#         "experience": experience_lines
-#     }
-# use_pdf = input("📄 Do you want to upload a resume PDF? (y/n): ").lower().startswith("y")
-
-# if use_pdf:
-#     path = input("🔍 Enter path to your resume PDF: ").strip()
-#     resume = parse_resume_from_pdf(path)
-#     print("✅ Resume parsed!")
-#     print("\n📝 Here's what we extracted from your resume:")
-#     print("👤 Name:", resume.get("name"))
-#     print("🛠  Skills:", ", ".join(resume.get("skills", [])))
-#     print("💼 Experience:")
-#     for exp in resume.get("experience", []):
-#         print("   -", exp)
-
-#     print("\n⚠️  Please review the above information.")
-#     input("👉 Press Enter to continue if it looks correct...")
-
-# else:
-#     resume = {
-#         "name": "Khushi Mahesh",
-#         "skills": ["Python", "Machine Learning", "Data Analysis", "Flask", "SQL"],
-#         "experience": ["Data Science Intern at ABC Corp", "Research Assistant at PES"]
-#     }
-
-# # Mock career tree
-# career_tree = {
-#     "track": "Choose from Software Engineering, Machine Learning, DevOps, Cybersecurity, Frontend, Backend",
-#     "branches": {
-#         "Software Engineering": [
-#             {
-#                 "title": "Junior Software Engineer",
-#                 "level": 1,
-#                 "skills": ["Python", "Git", "OOP"],
-#                 "description": "Assists in writing and testing basic code, debugging issues."
-#             },
-#             {
-#                 "title": "Software Engineer",
-#                 "level": 2,
-#                 "skills": ["Data Structures", "Algorithms", "SQL", "APIs"],
-#                 "description": "Builds scalable systems and APIs with production-ready code."
-#             },
-#             {
-#                 "title": "Senior Software Engineer",
-#                 "level": 3,
-#                 "skills": ["System Design", "Cloud", "CI/CD", "Code Review"],
-#                 "description": "Designs systems, mentors juniors, manages architecture."
-#             }
-#         ],
-#         "Machine Learning": [
-#             {
-#                 "title": "Data Scientist",
-#                 "level": 1,
-#                 "skills": ["Python", "EDA", "Machine Learning", "SQL"],
-#                 "description": "Analyzes data and builds predictive models."
-#             },
-#             {
-#                 "title": "ML Engineer",
-#                 "level": 2,
-#                 "skills": ["Deep Learning", "Model Deployment", "MLOps"],
-#                 "description": "Deploys, monitors, and scales ML systems."
-#             },
-#             {
-#                 "title": "Senior ML Engineer",
-#                 "level": 3,
-#                 "skills": ["Distributed Training", "Feature Stores", "Kubernetes"],
-#                 "description": "Leads ML infra and handles complex pipeline automation."
-#             }
-#         ],
-#         "DevOps / Cloud": [
-#             {
-#                 "title": "Cloud Engineer",
-#                 "level": 1,
-#                 "skills": ["Linux", "AWS", "Terraform", "Shell Scripting"],
-#                 "description": "Manages cloud infrastructure and automation scripts."
-#             },
-#             {
-#                 "title": "DevOps Engineer",
-#                 "level": 2,
-#                 "skills": ["CI/CD", "Docker", "Monitoring", "IaC"],
-#                 "description": "Builds pipelines and manages cloud-native deployments."
-#             },
-#             {
-#                 "title": "Site Reliability Engineer",
-#                 "level": 3,
-#                 "skills": ["Kubernetes", "SLOs/SLIs", "Chaos Engineering"],
-#                 "description": "Ensures system reliability at scale using advanced tooling."
-#             }
-#         ],
-#         "Cybersecurity": [
-#             {
-#                 "title": "Security Analyst",
-#                 "level": 1,
-#                 "skills": ["Networking", "Linux", "SIEM", "Threat Analysis"],
-#                 "description": "Monitors security alerts and investigates threats."
-#             },
-#             {
-#                 "title": "Security Engineer",
-#                 "level": 2,
-#                 "skills": ["Penetration Testing", "Firewalls", "Encryption", "Scripting"],
-#                 "description": "Builds secure systems and fixes vulnerabilities."
-#             },
-#             {
-#                 "title": "Security Architect",
-#                 "level": 3,
-#                 "skills": ["Zero Trust", "Cloud Security", "Risk Management"],
-#                 "description": "Designs and audits end-to-end secure systems."
-#             }
-#         ],
-#         "Frontend Engineering": [
-#             {
-#                 "title": "Junior Frontend Developer",
-#                 "level": 1,
-#                 "skills": ["HTML", "CSS", "JavaScript", "Git"],
-#                 "description": "Implements UI components and fixes minor issues."
-#             },
-#             {
-#                 "title": "Frontend Developer",
-#                 "level": 2,
-#                 "skills": ["React", "TypeScript", "Redux", "API Integration"],
-#                 "description": "Builds interactive interfaces and connects to backend APIs."
-#             },
-#             {
-#                 "title": "Senior Frontend Engineer",
-#                 "level": 3,
-#                 "skills": ["System Design", "Performance Optimization", "Web Accessibility"],
-#                 "description": "Architects frontend systems and mentors teams."
-#             }
-#         ],
-#         "Backend Engineering": [
-#             {
-#                 "title": "Backend Developer",
-#                 "level": 1,
-#                 "skills": ["Python", "Node.js", "SQL", "REST APIs"],
-#                 "description": "Implements and maintains backend logic and services."
-#             },
-#             {
-#                 "title": "Backend Engineer",
-#                 "level": 2,
-#                 "skills": ["Microservices", "Authentication", "Caching", "Message Queues"],
-#                 "description": "Builds scalable backend systems with authentication and queues."
-#             },
-#             {
-#                 "title": "Senior Backend Engineer",
-#                 "level": 3,
-#                 "skills": ["Distributed Systems", "Database Scaling", "System Design"],
-#                 "description": "Designs backend architecture for large-scale applications."
-#             }
-#         ]
-#     }
-# }
-
-# # nodes: (executing some function or task)
-
-# # Node 1: Match to Career Tree (hierarchical structure)
-# def locate_in_career_tree_node(state: State) -> State:
-#     resume_skills = set(state["resume"]["skills"])
-#     best_level = 0
-#     best_match = None
-#     max_overlap = 0
-    
-#     for level in state["career_tree"]["levels"]:
-#         overlap = len(resume_skills.intersection(level["skills"]))
-#         if overlap > max_overlap:
-#             max_overlap = overlap
-#             best_level = level["level"]
-#             best_match = level["title"]
-    
-#     # Use manually provided target_role if present
-#     next_role = state.get("target_role")
-#     if not next_role:
-#         next_level = best_level + 1
-#         next_role = next((lvl["title"] for lvl in state["career_tree"]["levels"] if lvl["level"] == next_level), None)
-
-#     return {**state, "matched_role": best_match, "current_level": best_level, "next_role": next_role}
-
-# # Node 2: generate career plan using Gemini
-# def generate_career_plan_node(state: State) -> State:
-#     resume = state["resume"]
-#     next_role = state.get("next_role", "Data Scientist")
-#     prompt = f"""
-#     The user currently has the following skills: {', '.join(resume['skills'])}.
-#     They are best matched to the role '{state['matched_role']}' and want to progress to '{next_role}'.
-
-#     Give them a personalized 3-step plan to grow into that next role, mentioning key skills to learn, projects to try, or certifications to get.
-#     """
-#     plan = gemini.invoke(prompt).content
-#     return {**state, "career_plan": plan}
-
-# # this is for career tree comparisons an extra addition for the fitscore 
-# def career_tree_level_comparison(user_skills: List[str], career_tree: Dict, target_role: str) -> Dict:
-#     levels = career_tree.get("levels", [])
-#     matched_level = 0
-#     total_levels = len(levels)
-#     missing_skills = []
-#     user_skillset = set(skill.lower() for skill in user_skills)
-
-#     for level in levels:
-#         required_skills = set(skill.lower() for skill in level.get("skills", []))
-#         level_number = level.get("level", 0)
-#         role_title = level.get("title")
-
-#         overlap = user_skillset.intersection(required_skills)
-#         match_ratio = len(overlap) / len(required_skills) if required_skills else 0
-
-#         if match_ratio >= 0.6:  # Consider 60%+ as enough to match that level
-#             matched_level = level_number
-
-#         if role_title.lower() == target_role.lower():
-#             missing_skills = list(required_skills - user_skillset)
-#             break
-
-#     return {
-#         "matched_level": matched_level,
-#         "total_levels": total_levels,
-#         "missing_skills": missing_skills
-#     }
-
-# # Node 3: this will be new and better for combined job trend search 
-# def combined_job_trend_node(state: State) -> State:
-#     role = state.get("target_role") or state.get("matched_role")
-#     location = state.get("location", "India")
-
-#     serp_api_key = os.getenv("SERP_API_KEY")
-#     rapidapi_key = os.getenv("RAPIDAPI_KEY")
-
-#     jobs = []
-
-#     ## --- Fetch from SerpAPI ---
-#     serp_url = f"https://serpapi.com/search.json?q={role} jobs in {location}&engine=google_jobs&hl=en&gl=in&api_key={serp_api_key}"
-#     try:
-#         serp_resp = requests.get(serp_url)
-#         if serp_resp.status_code == 200:
-#             serp_data = serp_resp.json()
-#             serp_jobs = serp_data.get("jobs_results", [])
-#             print(">>> SerpAPI job titles:")
-#             for job in serp_jobs[:3]:
-#                 print("-", job.get("title"), "@", job.get("company_name"))
-#             jobs.extend(serp_jobs)
-#     except Exception as e:
-#         print("SerpAPI error:", e)
-
-#     ## --- Fetch from JSearch API ---
-#     try:
-#         headers = {
-#             "X-RapidAPI-Key": rapidapi_key,
-#             "X-RapidAPI-Host": "jsearch.p.rapidapi.com"
-#         }
-#         jsearch_url = "https://jsearch.p.rapidapi.com/search"
-#         querystring = {"query": f"{role} in {location}", "page": "1", "num_pages": "1"}
-
-#         response = requests.get(jsearch_url, headers=headers, params=querystring)
-#         if response.status_code == 200:
-#             jsearch_data = response.json()
-#             jsearch_jobs = jsearch_data.get("data", [])
-#             print(">>> JSearch job titles:")
-#             for job in jsearch_jobs[:3]:
-#                 print("-", job.get("job_title"), "@", job.get("employer_name"))
-#             # Convert to unified structure
-#             for job in jsearch_jobs:
-#                 jobs.append({
-#                     "title": job.get("job_title"),
-#                     "company_name": job.get("employer_name"),
-#                     "description": job.get("job_description", "")
-#                 })
-#     except Exception as e:
-#         print("JSearch error:", e)
-
-#     # Create summary
-#     job_titles = [f"{job.get('title')} @ {job.get('company_name')}" for job in jobs[:5]]
-#     summary = f"Top job listings for '{role}' in {location}:\n- " + "\n- ".join(job_titles)
-
-#     return {**state, "job_trends": summary, "live_jobs": jobs}
-
-# # adding a function for the fit score 
-# # def calculate_fit_score(resume_skills, job_snippet) -> int:
-# #     score = 0
-# #     for skill in resume_skills:
-# #         if skill.lower() in job_snippet.lower():
-# #             score += 1
-# #     return score
-# # # Node 4 : Now creating the fitscore node 
-# # def fit_score_node(state: State) -> State:
-# #     resume_skills = state["resume"]["skills"]
-# #     jobs = state.get("live_jobs", [])
-# #     print(">>> Number of live jobs received:", len(jobs))
-# #     scored_jobs = []
-
-# #     for job in jobs:
-# #         snippet = job.get("description") or job.get("snippet") or ""
-# #         score = calculate_fit_score(resume_skills, snippet)
-# #         scored_jobs.append({
-# #             "title": job.get("title"),
-# #             "company": job.get("company_name"),
-# #             "fit_score": score
-# #         })
-
-# #     # Sort jobs by fit score (desc)
-# #     top_matches = sorted(scored_jobs, key=lambda x: x["fit_score"], reverse=True)[:3]
-# #     summary = "\n".join([f"{j['title']} @ {j['company']} → Fit Score: {j['fit_score']}" for j in top_matches])
-# #     print(">>> Fit Score Summary:\n", summary)
-# #     return {**state, "fit_score_summary": summary}
-
-# # this is the other fitscore version that uses the career tree
-# def fit_score_from_tree_node(state: State) -> State:
-#     print(">>> fit_score_from_tree_node is running...")
-#     user_skills = state["resume"]["skills"]
-#     career_tree = state["career_tree"]
-#     target_role = state["next_role"]
-
-#     fit = career_tree_level_comparison(user_skills, career_tree, target_role)
-#     matched_level = fit["matched_level"]
-#     total_levels = fit["total_levels"]
-#     missing_skills = fit["missing_skills"]
-
-#     score = round((matched_level / total_levels) * 100) if total_levels else 0
-
-#     summary = f"✅ Your fit score for **{target_role}** is **{score}%**.\n"
-#     summary += f"You match level {matched_level} out of {total_levels} in the career path.\n"
-
-#     if missing_skills:
-#         summary += "🔧 Skills to learn for the next level:\n"
-#         summary += "\n".join(f"- {s}" for s in missing_skills)
-#     else:
-#         summary += "🎉 You have all the skills required for this role!"
-    
-#     print(">>> SUMMARY GENERATED:\n", summary)
-
-#     return {**state, "fit_score": score, "fit_score_summary": summary}
-# # Node 5 : Tailor Resume using Gemini
-# def tailor_resume_node(state: State) -> State:
-#     resume = state["resume"]
-#     role = state["matched_role"]
-    
-#     prompt = f"""Tailor the following resume to match the job role: {role}.
-    
-#     Resume:
-#     Name: {resume['name']}
-#     Skills: {', '.join(resume['skills'])}
-#     Experience: {', '.join(resume['experience'])}
-#     """
-#     tailored = gemini.invoke(prompt).content
-#     return {**state, "tailored_resume": tailored}
-# # making an agent to autofill job applications and generate cover letters
-# def job_application_agent(resume: dict, target_role: str):
-
-#     print("\n🧠 Job Application Agent is filling your application form...")
-
-#     # Autofill fields from resume
-#     name = resume.get("name", "")
-#     first_name = name.split()[0]
-#     last_name = name.split()[-1] if len(name.split()) > 1 else ""
-#     email = f"{first_name.lower()}.{last_name.lower()}@gmail.com"
-#     phone = "9876543210"
-#     linkedin = f"https://www.linkedin.com/in/{first_name.lower()}{last_name.lower()}"
-#     github = f"https://github.com/{first_name.lower()}{last_name.lower()}"
-#     resume_url = "https://example.com/resume.pdf"
-
-#     # Generate a cover letter using Gemini
-#     cover_prompt = f"""
-#     Write a personalized cover letter for a {target_role} position based on the following resume:
-
-#     Name: {name}
-#     Skills: {', '.join(resume.get('skills', []))}
-#     Experience: {', '.join(resume.get('experience', []))}
-
-#     The tone should be professional, enthusiastic, and highlight relevant qualifications.
-#     """
-#     print("\n📝 Generating cover letter...")
-#     cover_letter = gemini.invoke(cover_prompt).content.strip()
-
-#     # Application form dictionary
-#     app_form = {
-#         "Full Name": name,
-#         "Email": email,
-#         "Phone": phone,
-#         "LinkedIn": linkedin,
-#         "GitHub": github,
-#         "Resume URL": resume_url,
-#         "Target Role": target_role,
-#         "Cover Letter": cover_letter
-#     }
-
-#     # Allow user to review and optionally edit fields
-#     print("\n🔍 Review and edit your application form:")
-#     for key in app_form:
-#         print(f"\n{key}:")
-#         print(app_form[key])
-#         user_input = input(f"✏️  Enter new value to edit, or press Enter to keep as is: ").strip()
-#         if user_input:
-#             app_form[key] = user_input
-
-#     # Save the final form
-#     filename_safe = re.sub(r"\W+", "_", name.lower())  # safe file name
-#     filepath = f"job_application_{filename_safe}.json"
-#     with open(filepath, "w") as f:
-#         json.dump(app_form, f, indent=2)
-
-#     print(f"\n✅ Final application saved as '{filepath}'")
-
-
-
-
-# # Build graph (with edges to connect the functionalities of the nodes)
-
-# graph = StateGraph(State)
-
-# graph.add_node("LocateInTree", locate_in_career_tree_node)
-# graph.add_node("CareerPlan", generate_career_plan_node)
-# graph.add_node("JobTrends", combined_job_trend_node)
-# graph.add_node("FitScore", fit_score_from_tree_node)
-# graph.add_node("TailorResume", tailor_resume_node)
-
-# graph.set_entry_point("LocateInTree")
-# graph.add_edge("LocateInTree", "CareerPlan")
-# graph.add_edge("CareerPlan", "JobTrends")
-# graph.add_edge("JobTrends", "FitScore")
-# graph.add_edge("FitScore", "TailorResume")
-
-# simple_graph = graph.compile()
-# # for branching career tree
-# print("Available career tracks:")
-# for track in career_tree["branches"]:
-#     print("-", track)
-
-# chosen_track = input("\n👉 Enter your career track: ").strip()
-
-# if chosen_track not in career_tree["branches"]:
-#     raise ValueError("Invalid track selected.")
-
-# track_levels = career_tree["branches"][chosen_track]
-
-# print(f"\nAvailable roles in {chosen_track}:")
-# for level in track_levels:
-#     print(f"- {level['title']}")
-
-# chosen_role = input("\n🎯 Enter your target role from the list above: ").strip()
-# valid_titles = [level["title"] for level in track_levels]
-# if chosen_role not in valid_titles:
-#     raise ValueError("Invalid role selected.")
-
-
-# # Run with test data
-# initial_state = {
-#     "resume": resume,
-#     "career_tree": {
-#         "track": chosen_track,
-#         "levels": track_levels
-#     },
-#     "location": "India",
-#     "target_role": chosen_role
-# }
-
-# output = simple_graph.invoke(initial_state)
-
-# # Print the output
-# # print(">>> FINAL OUTPUT KEYS:", output.keys())
-# pprint({
-#     "Matched Role": output.get("matched_role"),
-#     "Current Level": output.get("current_level"),
-#     "Next Role": output.get("next_role"),
-#     "Career Plan": output.get("career_plan"),
-#     "Job Trends": output.get("job_trends"),
-#     # "Top Job Fit Scores": output.get("fit_score_summary", "[Missing]"),
-#     # "Top Job Fit Scores": output.get("fit_score_summary"),
-#     "Tailored Resume": output.get("tailored_resume")
-# })
-
-# # calling the job application agent after graph execution
-# job_application_agent(resume, target_role=output["next_role"])
-
 # # new code:
 import os
 import requests
@@ -553,7 +17,8 @@ os.environ["GOOGLE_API_KEY"] = "AIzaSyAgf_aF8rXS8PuwKHlt3fKZaiX0VhfmTPc"
 os.environ["SERP_API_KEY"] = "3ee5d2063d49c83e1501762e639777de6e6c87d6d5d4a14948147a37c8618a95"
 os.environ["RAPIDAPI_KEY"] = "932d130a66mshea167e71c2f82cdp13e7dbjsnb26e597ef597"
 
-gemini = ChatGoogleGenerativeAI(model="gemini-2.5-flash-preview-04-17", temperature=0.3)
+# gemini = ChatGoogleGenerativeAI(model="gemini-2.5-flash-preview-04-17", temperature=0.3)
+gemini = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0.3)
 nlp = spacy.load("en_core_web_sm")
 
 
@@ -569,6 +34,18 @@ class State(TypedDict, total=False):
     tailored_resume: str
     location: str
     target_role: str
+    user_profile: dict
+    transcript_path: str
+    onboarding_answers: dict
+    jd_skills: List[str]
+
+    matched_skills: List[str]
+    missing_skills: List[str]
+    skill_match_score: int
+    skill_gap_summary: str
+
+    interview_questions: List[str]
+    interview_feedback: str
 
 # for pdf conversion 
 def save_application_pdf(data: dict, filename: str = "job_application.pdf"):
@@ -618,6 +95,106 @@ def parse_resume_from_pdf(path: str) -> dict:
 
     return {"name": name, "skills": skills, "experience": experience_lines}
 
+def parse_transcript_node(state: State) -> State:
+    transcript_path = state.get("transcript_path")
+    if not transcript_path:
+        return state  # skip if no transcript uploaded
+
+    doc = fitz.open(transcript_path)
+    text = "\n".join([page.get_text() for page in doc])
+
+    # GPA extraction
+    gpa_match = re.search(r"(?:GPA|CGPA)[\s:]*([0-9]\.\d{1,2})", text, re.IGNORECASE)
+    gpa = gpa_match.group(1) if gpa_match else "Not Found"
+
+    # Weak subjects: match any subject with grade below B or marks < 60
+    weak_subjects = []
+    for line in text.splitlines():
+        if any(grade in line for grade in ["C", "D", "F", "E"]):
+            weak_subjects.append(line.strip())
+        elif re.search(r"(\d{1,2})(?:\s*/\s*100)?", line):
+            mark = int(re.findall(r"(\d{1,2})", line)[0])
+            if mark < 60:
+                weak_subjects.append(line.strip())
+
+    transcript_info = {
+        "GPA": gpa,
+        "weak_subjects": weak_subjects[:5]  # limit to top 5
+    }
+
+    updated_profile = {**state.get("user_profile", {}), **transcript_info}
+    return {**state, "user_profile": updated_profile}
+
+def analyze_onboarding_node(state: State) -> State:
+    onboarding_answers = state.get("onboarding_answers", {})
+    if not onboarding_answers:
+        return state
+
+    prompt = f"""
+    Analyze the following onboarding answers and extract:
+    1. Career goals
+    2. Interests
+    3. Strengths
+    4. Weaknesses
+
+    Answers:
+    - Why are you interested in this field? {onboarding_answers.get('interest')}
+    - What are your strengths? {onboarding_answers.get('strengths')}
+    - What are your weaknesses? {onboarding_answers.get('weaknesses')}
+    - What are your short- and long-term goals? {onboarding_answers.get('goals')}
+    """
+
+    gemini_response = gemini.invoke(prompt).content
+
+    # Optionally, you can parse key insights using regex or just store the raw response
+    updated_profile = {**state.get("user_profile", {}), "onboarding_summary": gemini_response}
+    return {**state, "user_profile": updated_profile}
+
+def skill_gap_analyzer_node(state: State) -> State:
+    user_profile = state.get("user_profile", {})
+    resume_skills = set(state["resume"].get("skills", []))
+    quiz_skills = set(user_profile.get("quiz_skills", []))  # optional quiz result
+    jd_skills = set(state.get("jd_skills", []))              # from job description or scraped JD
+    combined_skills = resume_skills.union(quiz_skills).union(jd_skills)
+
+    target_role = state.get("target_role") or state.get("next_role")
+    career_tree_data = state["career_tree"]
+    matched_branch = None
+
+    # Find correct branch and level in career tree
+    for branch in career_tree_data["branches"].values():
+        for level in branch:
+            if level["title"].lower() == target_role.lower():
+                matched_branch = level
+                break
+        if matched_branch:
+            break
+
+    if not matched_branch:
+        return {**state, "skill_gap_analysis": "❌ Role not found in career tree."}
+
+    required_skills = set(skill.lower() for skill in matched_branch["skills"])
+    user_skillset = set(skill.lower() for skill in combined_skills)
+
+    matched = list(user_skillset.intersection(required_skills))
+    missing = list(required_skills - user_skillset)
+    score = round((len(matched) / len(required_skills or [1])) * 100)
+
+    summary = f"""🔎 Skill Gap Analysis for **{target_role}**:
+✅ Matched: {', '.join(matched) or 'None'}
+❌ Missing: {', '.join(missing) or 'None'}
+📊 Match Score: {score}%
+"""
+
+    return {
+        **state,
+        "matched_skills": matched,
+        "missing_skills": missing,
+        "skill_match_score": score,
+        "skill_gap_summary": summary
+    }
+
+### ^all onboarding nodes 
 career_tree = {
     "track": "Choose from Software Engineering, Machine Learning, DevOps, Cybersecurity, Frontend, Backend",
     "branches": {
@@ -744,18 +321,29 @@ career_tree = {
     }
 }
 
-
 def locate_in_career_tree_node(state: State) -> State:
     resume_skills = set(state["resume"]["skills"])
+    track = state["career_tree"].get("track", "Software Engineering")
+    levels = state["career_tree"]["branches"][track]
+
     best_level, best_match, max_overlap = 0, None, 0
-    for level in state["career_tree"]["levels"]:
+    for level in levels:
         overlap = len(resume_skills.intersection(level["skills"]))
         if overlap > max_overlap:
             max_overlap = overlap
             best_level = level["level"]
             best_match = level["title"]
-    next_role = state.get("target_role") or next((lvl["title"] for lvl in state["career_tree"]["levels"] if lvl["level"] == best_level + 1), None)
-    return {**state, "matched_role": best_match, "current_level": best_level, "next_role": next_role}
+
+    next_role = state.get("target_role") or next((lvl["title"] for lvl in levels if lvl["level"] == best_level + 1), None)
+
+    # ✅ add "levels" back into the state for later nodes to use
+    return {
+        **state,
+        "matched_role": best_match,
+        "current_level": best_level,
+        "next_role": next_role,
+        "career_tree": {**state["career_tree"], "levels": levels}
+    }
 
 def generate_career_plan_node(state: State) -> State:
     resume, next_role = state["resume"], state.get("next_role", "Data Scientist")
@@ -809,6 +397,89 @@ def fit_score_from_tree_node(state: State) -> State:
         summary += "🎉 You have all the skills required for this role!"
     return {**state, "fit_score": score, "fit_score_summary": summary}
 
+# Fetch interview questions from GeeksforGeeks or LeetCode using SerpAPI
+# def fetch_interview_questions(role: str) -> List[str]:
+#     serp_api_key = os.getenv("SERP_API_KEY")
+#     query = f"{role} interview questions site:geeksforgeeks.org OR site:leetcode.com"
+
+#     url = f"https://serpapi.com/search.json?q={query}&engine=google&api_key={serp_api_key}"
+#     try:
+#         response = requests.get(url)
+#         if response.status_code == 200:
+#             results = response.json().get("organic_results", [])
+#             questions = []
+#             for r in results:
+#                 snippet = r.get("snippet", "")
+#                 if any(kw in snippet.lower() for kw in ["question", "problem", "code", "example"]):
+#                     questions.append(snippet.strip())
+#                 if len(questions) >= 5:
+#                     break
+#             return questions
+#     except Exception as e:
+#         print("Fetch error:", e)
+#     return ["No questions found. Try again later."]
+def fetch_interview_questions(role: str) -> List[str]:
+    serp_api_key = os.getenv("SERP_API_KEY")
+    query = f"{role} interview questions site:geeksforgeeks.org"
+
+    url = f"https://serpapi.com/search.json?q={query}&engine=google&api_key={serp_api_key}"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            results = response.json().get("organic_results", [])
+            article_texts = [r.get("snippet", "") for r in results if "question" in r.get("snippet", "").lower()]
+
+            if not article_texts:
+                return ["⚠️ No direct questions found. Try again later."]
+
+            # Ask Gemini to extract actual questions from the text
+            raw_text = "\n".join(article_texts[:3])
+            prompt = f"""From the following text snippets, extract 5 clear interview questions only.
+Snippets:
+{raw_text}
+Output: List them clearly."""
+            return gemini.invoke(prompt).content.strip().split("\n")
+    except Exception as e:
+        return [f"❌ Error fetching questions: {str(e)}"]
+
+
+# def interview_agent_node(state: State) -> State:
+#     role = state.get("target_role") or state.get("matched_role") or "Software Engineer"
+#     questions = fetch_interview_questions(role)
+
+#     prompt = f"""
+# You are an interview coach. Below are some typical questions for a {role} role:
+# {chr(10).join(f"{i+1}. {q}" for i, q in enumerate(questions))}
+
+# Ask the user 2 of these. Evaluate their answers. Give:
+# - A score out of 10
+# - A short, encouraging feedback
+# - Specific ways to improve if weak
+# """
+
+#     gemini_response = gemini.invoke(prompt).content
+
+#     return {
+#         **state,
+#         "interview_questions": questions,
+#         "interview_feedback": gemini_response
+#     }
+def interview_agent_node(state: State) -> State:
+    role = state.get("target_role") or state.get("matched_role") or "Software Engineer"
+    questions = fetch_interview_questions(role)
+    question_1 = questions[0] if questions else "Tell me about a recent project."
+
+    # Save in session for next step
+    return {
+        **state,
+        "interview_questions": questions,
+        "current_interview_question": question_1,
+        "interview_feedback": "💬 Waiting for your answer..."
+    }
+
+
+### to further get the interview data etc. 
+
 def tailor_resume_node(state: State) -> State:
     resume, role = state["resume"], state["matched_role"]
     prompt = f"""Tailor the following resume to match the job role: {role}.
@@ -842,14 +513,24 @@ def job_application_agent(resume: dict, target_role: str) -> Dict:
 
 # Build LangGraph flow
 graph = StateGraph(State)
+graph.add_node("ParseTranscript", parse_transcript_node)
+graph.add_node("AnalyzeOnboarding", analyze_onboarding_node)
 graph.add_node("LocateInTree", locate_in_career_tree_node)
 graph.add_node("CareerPlan", generate_career_plan_node)
 graph.add_node("JobTrends", combined_job_trend_node)
 graph.add_node("FitScore", fit_score_from_tree_node)
 graph.add_node("TailorResume", tailor_resume_node)
+graph.add_node("SkillGapAnalyzer", skill_gap_analyzer_node)
+graph.add_node("InterviewAgent", interview_agent_node)
 graph.set_entry_point("LocateInTree")
-graph.add_edge("LocateInTree", "CareerPlan")
-graph.add_edge("CareerPlan", "JobTrends")
+graph.add_edge("LocateInTree", "ParseTranscript")
+graph.add_edge("ParseTranscript", "AnalyzeOnboarding")
+graph.add_edge("AnalyzeOnboarding", "CareerPlan")
+graph.add_edge("CareerPlan", "JobTrends")       
 graph.add_edge("JobTrends", "FitScore")
-graph.add_edge("FitScore", "TailorResume")
+graph.add_edge("FitScore", "SkillGapAnalyzer")
+graph.add_edge("SkillGapAnalyzer", "TailorResume")
+graph.add_edge("TailorResume", "InterviewAgent")
 simple_graph = graph.compile()
+
+
