@@ -11,6 +11,9 @@ from agent_testing import (
 
 st.set_page_config(page_title="AI Career Mentor", page_icon="🎓")
 st.title("🎯 AI Career Mentorship System")
+# this is to collect user info id for json storing  
+st.subheader("🧑‍💼 User Info")
+user_id = st.text_input("Enter your user ID or email")
 
 # ✅ Initialize chat memory BEFORE anything else
 if "chat_history" not in st.session_state:
@@ -22,6 +25,22 @@ if "resume_data" not in st.session_state:
 if "graph_output" not in st.session_state:
     st.session_state.graph_output = None
 
+#for onboarding questions 
+if "onboarding_step" not in st.session_state:
+    st.session_state.onboarding_step = 0
+if "onboarding_answers" not in st.session_state:
+    st.session_state.onboarding_answers = {
+        "interest": "",
+        "strengths": "",
+        "weaknesses": "",
+        "goals": ""
+    }
+questions = [
+    ("interest", "What's your area of interest?"),
+    ("strengths", "What are your key strengths?"),
+    ("weaknesses", "What are some of your weaker areas?"),
+    ("goals", "What are your long-term career goals?")
+]
 
 # Tabs for functionality
 tab1, tab2, tab3 = st.tabs(["🧠 Mentor Guidance", "📄 Application Agent", "💬 Chat with Mentor"])
@@ -43,55 +62,119 @@ with tab1:
         for exp in resume["experience"]:
             st.write(f"- {exp}")
 ##
-        st.subheader("📄 (Optional) Upload Transcript")
-        transcript_file = st.file_uploader("Upload transcript PDF", type=["pdf"], key="transcript")
-
-        st.subheader("🧠 Onboarding Questions")
-        interest = st.text_area("Why are you interested in this field?")
-        strengths = st.text_area("What are your strengths?")
-        weaknesses = st.text_area("What are your weaknesses?")
-        goals = st.text_area("What are your short- and long-term goals")
-
+        st.subheader("📊 Academic Info")
+        gpa = st.text_input("Enter your GPA (e.g., 8.5)")
+        weak_subjects_input = st.text_area("List a few weak subjects (comma-separated)", placeholder="DBMS, OS, Networks")
     if st.session_state.resume_data:
         st.subheader("🎯 Choose Career Track & Role")
 
         track = st.selectbox("Choose your career track", list(career_tree["branches"].keys()))
         roles = [r["title"] for r in career_tree["branches"][track]]
         role = st.selectbox("Choose your target role", roles)
-        location = st.text_input("📍 Job Search Location", value="India")
-##
-        if st.button("🚀 Run Career Mentorship Pipeline"):
-            # Save transcript to file if uploaded
-            transcript_path = None
-            if transcript_file:
-                with open("temp_transcript.pdf", "wb") as f:
-                    f.write(transcript_file.read())
-                transcript_path = "temp_transcript.pdf"
+        location = st.text_input("📍 Job Search Location", placeholder="India")
+# # ##
+# if st.button("🚀 Run Career Mentorship Pipeline"):
+      
+#   if user_id:
+#    state = {
+#                        "user_id": user_id,
+#                        "resume": st.session_state.resume_data,
+#                        "career_tree": {
+#                           **career_tree,
+#                             "track": track
+#                         },  # ✅ Pass the full tree now / actual user selected track 
+#                       "location": location,
+#                       "target_role": role,
+#                       "user_profile": {
+#                           "GPA": gpa,
+#                           "weak_subjects": [s.strip() for s in weak_subjects_input.split(",") if s.strip()]
+#                       },
+#                       "onboarding_answers": {
+#                           "interest": interest,
+#                           "strengths": strengths,
+#                           "weaknesses": weaknesses,
+#                           "goals": goals
+#     }
+# }
 
-            state = {
-                      "resume": st.session_state.resume_data,
-                      "career_tree": {
-                          **career_tree,
-                            "track": track
-                        },  # ✅ Pass the full tree now / actual user selected track 
-                      "location": location,
-                      "target_role": role,
-                      "transcript_path": transcript_path,
-                      "onboarding_answers": {
-                          "interest": interest,
-                          "strengths": strengths,
-                          "weaknesses": weaknesses,
-                          "goals": goals
-    }
-}
+
+#   with st.spinner("Running mentorship pipeline..."):
+#                 output = simple_graph.invoke(state)
+#                 st.session_state.graph_output = output
+#                 st.success("Pipeline executed successfully!")
+
+##try this version again later : 
+
+step = st.session_state.onboarding_step
+key, prompt = questions[step]
+st.text_input(prompt, key=f"input_{key}", value=st.session_state.onboarding_answers[key], on_change=None)
+
+col1, col2 = st.columns([1, 1])
+
+with col1:
+    if step > 0 and st.button("⬅️ Back"):
+        st.session_state.onboarding_answers[key] = st.session_state[f"input_{key}"]
+        st.session_state.onboarding_step -= 1
+
+with col2:
+    if step < len(questions) - 1 and st.button("➡️ Next"):
+        st.session_state.onboarding_answers[key] = st.session_state[f"input_{key}"]
+        st.session_state.onboarding_step += 1
+# Final Step – Ready to Submit
+if step == len(questions) - 1:
+    st.session_state.onboarding_answers[key] = st.session_state[f"input_{key}"]
+    st.markdown("---")
+    if st.button("🚀 Run Career Mentorship Pipeline"):
+        
+    #     # ✅ Final state passed here
+    #     state = {
+    #         "user_id": user_id,
+    #         "resume": st.session_state.resume_data,
+    #         "career_tree": {
+    #             **career_tree,
+    #             "track": track
+    #         },
+    #         "location": location,
+    #         "target_role": role,
+    #         "user_profile": {
+    #             "GPA": gpa,
+    #             "weak_subjects": [s.strip() for s in weak_subjects_input.split(",") if s.strip()]
+    #         },
+    #         "onboarding_answers": st.session_state.onboarding_answers
+    #     }
+
+    #     with st.spinner("Running mentorship pipeline..."):
+    #         output = simple_graph.invoke(state)
+    #         st.session_state.graph_output = output
+    #         st.success("Pipeline executed successfully!")
+    # else:
+    #   st.warning("Please enter your user ID to proceed.")
+
+ #trying this for user_id 
+      if user_id:
+          state = {
+              "user_id": user_id,  # ✅ Add this line
+              "resume": st.session_state.resume_data,
+              "career_tree": {
+                  **career_tree,
+                  "track": track },
+              "location": location,
+              "target_role": role,
+              "user_profile": {
+                  "GPA": gpa,
+                  "weak_subjects": [s.strip() for s in weak_subjects_input.split(",") if s.strip()]
+              },
+              "onboarding_answers": st.session_state.onboarding_answers
+          }
+          with st.spinner("Running mentorship pipeline..."):
+              output = simple_graph.invoke(state)
+              st.session_state.graph_output = output
+              st.success("Pipeline executed successfully!")
+    else:
+        st.warning("Please enter your user ID to proceed.")
 
 
-            with st.spinner("Running mentorship pipeline..."):
-                output = simple_graph.invoke(state)
-                st.session_state.graph_output = output
-                st.success("Pipeline executed successfully!")
-
-    if st.session_state.graph_output:
+if st.session_state.graph_output:
         out = st.session_state.graph_output
         st.subheader("🔍 Results")
         out = st.session_state.graph_output

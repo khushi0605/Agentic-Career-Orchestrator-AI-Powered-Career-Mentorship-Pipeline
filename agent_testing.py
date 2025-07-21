@@ -24,6 +24,7 @@ nlp = spacy.load("en_core_web_sm")
 
 class State(TypedDict, total=False):
     resume: dict
+    user_id: str
     career_tree: dict
     matched_role: str
     match_score: int
@@ -35,7 +36,6 @@ class State(TypedDict, total=False):
     location: str
     target_role: str
     user_profile: dict
-    transcript_path: str
     onboarding_answers: dict
     jd_skills: List[str]
 
@@ -46,6 +46,13 @@ class State(TypedDict, total=False):
 
     interview_questions: List[str]
     interview_feedback: str
+
+# Function to save user profile data in a json file 
+def save_user_profile(user_id, data, folder="user_data"):
+    os.makedirs(folder, exist_ok=True)  # ensure folder exists
+    filepath = os.path.join(folder, f"{user_id}.json")
+    with open(filepath, "w") as f:
+        json.dump(data, f, indent=4)
 
 # for pdf conversion 
 def save_application_pdf(data: dict, filename: str = "job_application.pdf"):
@@ -95,35 +102,6 @@ def parse_resume_from_pdf(path: str) -> dict:
 
     return {"name": name, "skills": skills, "experience": experience_lines}
 
-def parse_transcript_node(state: State) -> State:
-    transcript_path = state.get("transcript_path")
-    if not transcript_path:
-        return state  # skip if no transcript uploaded
-
-    doc = fitz.open(transcript_path)
-    text = "\n".join([page.get_text() for page in doc])
-
-    # GPA extraction
-    gpa_match = re.search(r"(?:GPA|CGPA)[\s:]*([0-9]\.\d{1,2})", text, re.IGNORECASE)
-    gpa = gpa_match.group(1) if gpa_match else "Not Found"
-
-    # Weak subjects: match any subject with grade below B or marks < 60
-    weak_subjects = []
-    for line in text.splitlines():
-        if any(grade in line for grade in ["C", "D", "F", "E"]):
-            weak_subjects.append(line.strip())
-        elif re.search(r"(\d{1,2})(?:\s*/\s*100)?", line):
-            mark = int(re.findall(r"(\d{1,2})", line)[0])
-            if mark < 60:
-                weak_subjects.append(line.strip())
-
-    transcript_info = {
-        "GPA": gpa,
-        "weak_subjects": weak_subjects[:5]  # limit to top 5
-    }
-
-    updated_profile = {**state.get("user_profile", {}), **transcript_info}
-    return {**state, "user_profile": updated_profile}
 
 def analyze_onboarding_node(state: State) -> State:
     onboarding_answers = state.get("onboarding_answers", {})
@@ -192,7 +170,7 @@ def skill_gap_analyzer_node(state: State) -> State:
         "missing_skills": missing,
         "skill_match_score": score,
         "skill_gap_summary": summary
-    }
+   }
 
 ### ^all onboarding nodes 
 career_tree = {
@@ -510,10 +488,28 @@ def job_application_agent(resume: dict, target_role: str) -> Dict:
     save_application_pdf(app_form)
     return app_form
 
+def save_profile_node(state):
+    user_id = state["user_id"]
+    save_user_profile(user_id, {
+        "resume": state.get("resume"),
+        "user_profile": state.get("user_profile"),
+        "onboarding_answers": state.get("onboarding_answers", {}),
+        "location": state.get("location"),
+        "target_role": state.get("target_role"),
+        "track": state.get("career_tree", {}).get("track"),
+        "career_plan": state.get("career_plan", ""),
+        "job_trends": state.get("job_trends", ""),
+        "matched_role": state.get("matched_role", ""),
+        "next_role": state.get("next_role", ""),
+        "match_score": state.get("match_score", "")
+    })
+    return state
+
+
 
 # Build LangGraph flow
 graph = StateGraph(State)
-graph.add_node("ParseTranscript", parse_transcript_node)
+
 graph.add_node("AnalyzeOnboarding", analyze_onboarding_node)
 graph.add_node("LocateInTree", locate_in_career_tree_node)
 graph.add_node("CareerPlan", generate_career_plan_node)
@@ -522,15 +518,18 @@ graph.add_node("FitScore", fit_score_from_tree_node)
 graph.add_node("TailorResume", tailor_resume_node)
 graph.add_node("SkillGapAnalyzer", skill_gap_analyzer_node)
 graph.add_node("InterviewAgent", interview_agent_node)
+graph.add_node("SaveUserProfile", save_profile_node)
+
+# Entry point
 graph.set_entry_point("LocateInTree")
-graph.add_edge("LocateInTree", "ParseTranscript")
-graph.add_edge("ParseTranscript", "AnalyzeOnboarding")
+# Edges
+graph.add_edge("LocateInTree", "AnalyzeOnboarding")
 graph.add_edge("AnalyzeOnboarding", "CareerPlan")
 graph.add_edge("CareerPlan", "JobTrends")       
 graph.add_edge("JobTrends", "FitScore")
 graph.add_edge("FitScore", "SkillGapAnalyzer")
 graph.add_edge("SkillGapAnalyzer", "TailorResume")
 graph.add_edge("TailorResume", "InterviewAgent")
+graph.add_edge("InterviewAgent", "SaveUserProfile")
+graph.set_finish_point("SaveUserProfile")
 simple_graph = graph.compile()
-
-
