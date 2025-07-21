@@ -324,12 +324,37 @@ def locate_in_career_tree_node(state: State) -> State:
     }
 
 def generate_career_plan_node(state: State) -> State:
-    resume, next_role = state["resume"], state.get("next_role", "Data Scientist")
+    resume = state.get("resume", {})
+    onboarding = state.get("onboarding_answers", {})
+    user_profile = state.get("user_profile", {})
+    gpa = user_profile.get("GPA", "N/A")
+    weak_subjects = user_profile.get("weak_subjects", [])
+    target_role = state.get("next_role", "Data Scientist")
     prompt = f"""
-    The user currently has the following skills: {', '.join(resume['skills'])}.
-    They are best matched to the role '{state['matched_role']}' and want to progress to '{next_role}'.
-    Give them a personalized 3-step plan to grow into that next role.
-    """
+        The user is being onboarded into an AI career mentorship system.
+
+        They currently have:
+        - Resume Skills: {', '.join(resume['skills'])}
+        - GPA: {gpa}
+        - Weak Subjects: {', '.join(weak_subjects)}
+        - Onboarding Info:
+            - Interests: {onboarding.get('interest')}
+            - Strengths: {onboarding.get('strengths')}
+            - Weaknesses: {onboarding.get('weaknesses')}
+            - Goals: {onboarding.get('goals')}
+        - Target Role: {target_role}
+
+        Using this information, generate a mentorship-style career plan that includes:
+        1. Where They Are Now (summary)
+        2. Where They Want to Go (goals)
+        3. Key Growth Areas (technical, academic, soft skills)
+        4. Actionable Milestones (what to build, practice, or review)
+        5. How a Mentor Can Help
+        6. A Recommended 3-Month Roadmap
+
+        Be specific, clear, and motivational.
+        """
+
     plan = gemini.invoke(prompt).content
     return {**state, "career_plan": plan}
 
