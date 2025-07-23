@@ -11,6 +11,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen import canvas
+from scraper_agent import fetch_scraped_data
 
 # Load Gemini + API keys
 os.environ["GOOGLE_API_KEY"] = "AIzaSyAgf_aF8rXS8PuwKHlt3fKZaiX0VhfmTPc"
@@ -400,73 +401,72 @@ def fit_score_from_tree_node(state: State) -> State:
         summary += "🎉 You have all the skills required for this role!"
     return {**state, "fit_score": score, "fit_score_summary": summary}
 
-# Fetch interview questions from GeeksforGeeks or LeetCode using SerpAPI
+
 # def fetch_interview_questions(role: str) -> List[str]:
 #     serp_api_key = os.getenv("SERP_API_KEY")
-#     query = f"{role} interview questions site:geeksforgeeks.org OR site:leetcode.com"
+#     query = f"{role} interview questions site:geeksforgeeks.org"
 
 #     url = f"https://serpapi.com/search.json?q={query}&engine=google&api_key={serp_api_key}"
 #     try:
 #         response = requests.get(url)
 #         if response.status_code == 200:
 #             results = response.json().get("organic_results", [])
-#             questions = []
-#             for r in results:
-#                 snippet = r.get("snippet", "")
-#                 if any(kw in snippet.lower() for kw in ["question", "problem", "code", "example"]):
-#                     questions.append(snippet.strip())
-#                 if len(questions) >= 5:
-#                     break
-#             return questions
+#             article_texts = [r.get("snippet", "") for r in results if "question" in r.get("snippet", "").lower()]
+
+#             if not article_texts:
+#                 return ["⚠️ No direct questions found. Try again later."]
+
+#             # Ask Gemini to extract actual questions from the text
+#             raw_text = "\n".join(article_texts[:3])
+#             prompt = f"""From the following text snippets, extract 5 clear interview questions only.
+# Snippets:
+# {raw_text}
+# Output: List them clearly."""
+#             return gemini.invoke(prompt).content.strip().split("\n")
 #     except Exception as e:
-#         print("Fetch error:", e)
-#     return ["No questions found. Try again later."]
+#         return [f"❌ Error fetching questions: {str(e)}"]
+
+#testing the api results:
 def fetch_interview_questions(role: str) -> List[str]:
     serp_api_key = os.getenv("SERP_API_KEY")
     query = f"{role} interview questions site:geeksforgeeks.org"
-
     url = f"https://serpapi.com/search.json?q={query}&engine=google&api_key={serp_api_key}"
+
     try:
         response = requests.get(url)
+
+        # ⬇️ DEBUG: Print status and raw response
+        print("Status code:", response.status_code)
+        print("Raw JSON:", response.json())
+
         if response.status_code == 200:
             results = response.json().get("organic_results", [])
-            article_texts = [r.get("snippet", "") for r in results if "question" in r.get("snippet", "").lower()]
+
+            # ⬇️ DEBUG: Print full result list
+            print("Organic Results:", results)
+
+            article_texts = [r.get("snippet", "") for r in results if r.get("snippet", "")]
 
             if not article_texts:
-                return ["⚠️ No direct questions found. Try again later."]
+                return ["⚠️ No snippet content found."]
 
             # Ask Gemini to extract actual questions from the text
             raw_text = "\n".join(article_texts[:3])
+
+            # ⬇️ DEBUG: What Gemini will receive
+            print("Snippets sent to Gemini:\n", raw_text)
+
             prompt = f"""From the following text snippets, extract 5 clear interview questions only.
 Snippets:
 {raw_text}
 Output: List them clearly."""
+
             return gemini.invoke(prompt).content.strip().split("\n")
+
     except Exception as e:
         return [f"❌ Error fetching questions: {str(e)}"]
 
 
-# def interview_agent_node(state: State) -> State:
-#     role = state.get("target_role") or state.get("matched_role") or "Software Engineer"
-#     questions = fetch_interview_questions(role)
-
-#     prompt = f"""
-# You are an interview coach. Below are some typical questions for a {role} role:
-# {chr(10).join(f"{i+1}. {q}" for i, q in enumerate(questions))}
-
-# Ask the user 2 of these. Evaluate their answers. Give:
-# - A score out of 10
-# - A short, encouraging feedback
-# - Specific ways to improve if weak
-# """
-
-#     gemini_response = gemini.invoke(prompt).content
-
-#     return {
-#         **state,
-#         "interview_questions": questions,
-#         "interview_feedback": gemini_response
-#     }
 def interview_agent_node(state: State) -> State:
     role = state.get("target_role") or state.get("matched_role") or "Software Engineer"
     questions = fetch_interview_questions(role)
@@ -480,8 +480,29 @@ def interview_agent_node(state: State) -> State:
         "interview_feedback": "💬 Waiting for your answer..."
     }
 
+# new interview node with scraping agent 
 
-### to further get the interview data etc. 
+# def web_scraping_node(state: State) -> State:
+#     role = state.get("target_role", "software engineer")
+#     location = state.get("location", "India")
+#     interest = state.get("onboarding_answers", {}).get("interest", "AI")
+
+#     scraped_data = fetch_scraped_data(role, location, interest)
+
+#     return {**state, **scraped_data}
+def web_scraping_node(state: State) -> State:
+    try:
+        scraped = fetch_scraped_data(role=state.get("target_role", "Software Engineer"))
+        return {
+            **state,
+            "jobs": scraped.get("jobs", []),
+            "courses": scraped.get("courses", []),
+            "interview_questions": scraped.get("interview_questions", [])
+        }
+    except Exception as e:
+        print("Scraper error:", e)
+        return state
+
 
 def tailor_resume_node(state: State) -> State:
     resume, role = state["resume"], state["matched_role"]
@@ -544,7 +565,7 @@ graph.add_node("TailorResume", tailor_resume_node)
 graph.add_node("SkillGapAnalyzer", skill_gap_analyzer_node)
 graph.add_node("InterviewAgent", interview_agent_node)
 graph.add_node("SaveUserProfile", save_profile_node)
-
+graph.add_node("ScrapeWebInfo", web_scraping_node)
 # Entry point
 graph.set_entry_point("LocateInTree")
 # Edges
@@ -555,6 +576,8 @@ graph.add_edge("JobTrends", "FitScore")
 graph.add_edge("FitScore", "SkillGapAnalyzer")
 graph.add_edge("SkillGapAnalyzer", "TailorResume")
 graph.add_edge("TailorResume", "InterviewAgent")
-graph.add_edge("InterviewAgent", "SaveUserProfile")
+graph.add_edge("InterviewAgent", "ScrapeWebInfo")
+graph.add_edge("InterviewAgent", "ScrapeWebInfo")
+graph.add_edge("ScrapeWebInfo", "SaveUserProfile")
 graph.set_finish_point("SaveUserProfile")
 simple_graph = graph.compile()

@@ -172,10 +172,32 @@ if step == len(questions) - 1:
               st.success("Pipeline executed successfully!")
     else:
         st.warning("Please enter your user ID to proceed.")
+    if "graph_output" in st.session_state and st.session_state.graph_output is not None:
+        output = st.session_state.graph_output    
+        if "tech_news" in output:
+            st.subheader("📰 Tech News")
+            for item in output["tech_news"]:
+                st.markdown(f"- {item}")
+                print(f"News item")  # Debugging line
 
+        if "jobs" in output:
+            st.subheader("💼 Job Listings")
+            for job in output["jobs"]:
+                st.markdown(f"- {job}")
+                print(f"Job listing")
 
-if st.session_state.graph_output:
-        out = st.session_state.graph_output
+        if "courses" in output:
+            st.subheader("📚 Suggested Courses")
+            for course in output["courses"]:
+                st.markdown(f"- {course}")
+                print(f"Course suggestion")
+
+        if "interview_questions" in output:
+            st.subheader("🧠 Interview Questions")
+            for q in output["interview_questions"]:
+                st.markdown(f"- {q}")
+                print(f"Interview question")
+
         st.subheader("🔍 Results")
         out = st.session_state.graph_output
 
