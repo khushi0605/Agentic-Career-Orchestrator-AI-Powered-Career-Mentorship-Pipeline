@@ -11,7 +11,6 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 from reportlab.lib.pagesizes import LETTER
 from reportlab.pdfgen import canvas
-from scraper_agent import fetch_scraped_data
 
 # Load Gemini + API keys
 os.environ["GOOGLE_API_KEY"] = "AIzaSyAgf_aF8rXS8PuwKHlt3fKZaiX0VhfmTPc"
@@ -172,6 +171,16 @@ def skill_gap_analyzer_node(state: State) -> State:
         "skill_match_score": score,
         "skill_gap_summary": summary
    }
+#loading job descriptions from a json file
+def load_job_descriptions() -> List[Dict]:
+    try:
+        with open("job_descriptions.json", "r") as f:
+            job_descriptions = json.load(f)
+        return job_descriptions
+    except Exception as e:
+        print(f"Error loading job descriptions: {e}")
+        return []
+
 
 ### ^all onboarding nodes 
 career_tree = {
@@ -315,6 +324,16 @@ def locate_in_career_tree_node(state: State) -> State:
 
     next_role = state.get("target_role") or next((lvl["title"] for lvl in levels if lvl["level"] == best_level + 1), None)
 
+     # Load job descriptions from the JSON file
+    job_descriptions = load_job_descriptions()
+
+    # Filter job descriptions based on the selected track and best-matching role
+    selected_job = next((job for job in job_descriptions if job["career_track"] == track and job["title"] == best_match), None)
+
+    # Add the matched job description to the state if found
+    if selected_job:
+        state["job_descriptions"] = selected_job
+
     # ✅ add "levels" back into the state for later nodes to use
     return {
         **state,
@@ -401,7 +420,27 @@ def fit_score_from_tree_node(state: State) -> State:
         summary += "🎉 You have all the skills required for this role!"
     return {**state, "fit_score": score, "fit_score_summary": summary}
 
+# # Fetch interview questions from GeeksforGeeks or LeetCode using SerpAPI
+# # def fetch_interview_questions(role: str) -> List[str]:
+# #     serp_api_key = os.getenv("SERP_API_KEY")
+# #     query = f"{role} interview questions site:geeksforgeeks.org OR site:leetcode.com"
 
+# #     url = f"https://serpapi.com/search.json?q={query}&engine=google&api_key={serp_api_key}"
+# #     try:
+# #         response = requests.get(url)
+# #         if response.status_code == 200:
+# #             results = response.json().get("organic_results", [])
+# #             questions = []
+# #             for r in results:
+# #                 snippet = r.get("snippet", "")
+# #                 if any(kw in snippet.lower() for kw in ["question", "problem", "code", "example"]):
+# #                     questions.append(snippet.strip())
+# #                 if len(questions) >= 5:
+# #                     break
+# #             return questions
+# #     except Exception as e:
+# #         print("Fetch error:", e)
+# #     return ["No questions found. Try again later."]
 # def fetch_interview_questions(role: str) -> List[str]:
 #     serp_api_key = os.getenv("SERP_API_KEY")
 #     query = f"{role} interview questions site:geeksforgeeks.org"
@@ -426,83 +465,43 @@ def fit_score_from_tree_node(state: State) -> State:
 #     except Exception as e:
 #         return [f"❌ Error fetching questions: {str(e)}"]
 
-#testing the api results:
-def fetch_interview_questions(role: str) -> List[str]:
-    serp_api_key = os.getenv("SERP_API_KEY")
-    query = f"{role} interview questions site:geeksforgeeks.org"
-    url = f"https://serpapi.com/search.json?q={query}&engine=google&api_key={serp_api_key}"
 
-    try:
-        response = requests.get(url)
+# # def interview_agent_node(state: State) -> State:
+# #     role = state.get("target_role") or state.get("matched_role") or "Software Engineer"
+# #     questions = fetch_interview_questions(role)
 
-        # ⬇️ DEBUG: Print status and raw response
-        print("Status code:", response.status_code)
-        print("Raw JSON:", response.json())
+# #     prompt = f"""
+# # You are an interview coach. Below are some typical questions for a {role} role:
+# # {chr(10).join(f"{i+1}. {q}" for i, q in enumerate(questions))}
 
-        if response.status_code == 200:
-            results = response.json().get("organic_results", [])
+# # Ask the user 2 of these. Evaluate their answers. Give:
+# # - A score out of 10
+# # - A short, encouraging feedback
+# # - Specific ways to improve if weak
+# # """
 
-            # ⬇️ DEBUG: Print full result list
-            print("Organic Results:", results)
+# #     gemini_response = gemini.invoke(prompt).content
 
-            article_texts = [r.get("snippet", "") for r in results if r.get("snippet", "")]
+# #     return {
+# #         **state,
+# #         "interview_questions": questions,
+# #         "interview_feedback": gemini_response
+# #     }
+# def interview_agent_node(state: State) -> State:
+#     role = state.get("target_role") or state.get("matched_role") or "Software Engineer"
+#     questions = fetch_interview_questions(role)
+#     question_1 = questions[0] if questions else "Tell me about a recent project."
 
-            if not article_texts:
-                return ["⚠️ No snippet content found."]
-
-            # Ask Gemini to extract actual questions from the text
-            raw_text = "\n".join(article_texts[:3])
-
-            # ⬇️ DEBUG: What Gemini will receive
-            print("Snippets sent to Gemini:\n", raw_text)
-
-            prompt = f"""From the following text snippets, extract 5 clear interview questions only.
-Snippets:
-{raw_text}
-Output: List them clearly."""
-
-            return gemini.invoke(prompt).content.strip().split("\n")
-
-    except Exception as e:
-        return [f"❌ Error fetching questions: {str(e)}"]
+#     # Save in session for next step
+#     return {
+#         **state,
+#         "interview_questions": questions,
+#         "current_interview_question": question_1,
+#         "interview_feedback": "💬 Waiting for your answer..."
+#     }
 
 
-def interview_agent_node(state: State) -> State:
-    role = state.get("target_role") or state.get("matched_role") or "Software Engineer"
-    questions = fetch_interview_questions(role)
-    question_1 = questions[0] if questions else "Tell me about a recent project."
-
-    # Save in session for next step
-    return {
-        **state,
-        "interview_questions": questions,
-        "current_interview_question": question_1,
-        "interview_feedback": "💬 Waiting for your answer..."
-    }
-
-# new interview node with scraping agent 
-
-# def web_scraping_node(state: State) -> State:
-#     role = state.get("target_role", "software engineer")
-#     location = state.get("location", "India")
-#     interest = state.get("onboarding_answers", {}).get("interest", "AI")
-
-#     scraped_data = fetch_scraped_data(role, location, interest)
-
-#     return {**state, **scraped_data}
-def web_scraping_node(state: State) -> State:
-    try:
-        scraped = fetch_scraped_data(role=state.get("target_role", "Software Engineer"))
-        return {
-            **state,
-            "jobs": scraped.get("jobs", []),
-            "courses": scraped.get("courses", []),
-            "interview_questions": scraped.get("interview_questions", [])
-        }
-    except Exception as e:
-        print("Scraper error:", e)
-        return state
-
+# ### to further get the interview data etc. 
 
 def tailor_resume_node(state: State) -> State:
     resume, role = state["resume"], state["matched_role"]
@@ -514,23 +513,27 @@ def tailor_resume_node(state: State) -> State:
     return {**state, "tailored_resume": tailored}
 
 def job_application_agent(resume: dict, target_role: str) -> Dict:
-    name = resume.get("name", "")
-    first_name, last_name = name.split()[0], name.split()[-1] if len(name.split()) > 1 else ""
-    app_form = {
-        "Full Name": name,
-        "Email": f"{first_name.lower()}.{last_name.lower()}@gmail.com",
-        "Phone": "9876543210",
-        "LinkedIn": f"https://www.linkedin.com/in/{first_name.lower()}{last_name.lower()}",
-        "GitHub": f"https://github.com/{first_name.lower()}{last_name.lower()}",
-        "Resume URL": "https://example.com/resume.pdf",
-        "Target Role": target_role,
-        "Cover Letter": gemini.invoke(f"""
-        Write a personalized cover letter for a {target_role} position based on the following resume:
-        Name: {name}
-        Skills: {', '.join(resume.get('skills', []))}
-        Experience: {', '.join(resume.get('experience', []))}
-        """).content.strip()
-    }
+    job = next((job for job in load_job_descriptions() if job["title"] == target_role), None)
+    
+    if job:
+        name = resume.get("name", "")
+        first_name, last_name = name.split()[0], name.split()[-1] if len(name.split()) > 1 else ""
+        app_form = {
+            "Full Name": name,
+            "Email": f"{first_name.lower()}.{last_name.lower()}@gmail.com",
+            "Phone": "9876543210",
+            "LinkedIn": f"https://www.linkedin.com/in/{first_name.lower()}{last_name.lower()}",
+            "GitHub": f"https://github.com/{first_name.lower()}{last_name.lower()}",
+            "Resume URL": "https://example.com/resume.pdf",
+            "Target Role": target_role,
+            "Cover Letter": gemini.invoke(f"""
+            Write a personalized cover letter for a {target_role} position based on the following resume:
+            Name: {name}
+            Skills: {', '.join(resume.get('skills', []))}
+            Experience: {', '.join(resume.get('experience', []))}
+            Job Description: {job['description']}
+            """).content.strip()
+        }
     save_application_pdf(app_form)
     return app_form
 
@@ -547,10 +550,10 @@ def save_profile_node(state):
         "job_trends": state.get("job_trends", ""),
         "matched_role": state.get("matched_role", ""),
         "next_role": state.get("next_role", ""),
-        "match_score": state.get("match_score", "")
+        "match_score": state.get("match_score", ""),
+        "job_descriptions": state.get("job_descriptions", {})  # Add job descriptions to the saved state
     })
     return state
-
 
 
 # Build LangGraph flow
@@ -563,9 +566,9 @@ graph.add_node("JobTrends", combined_job_trend_node)
 graph.add_node("FitScore", fit_score_from_tree_node)
 graph.add_node("TailorResume", tailor_resume_node)
 graph.add_node("SkillGapAnalyzer", skill_gap_analyzer_node)
-graph.add_node("InterviewAgent", interview_agent_node)
+# graph.add_node("InterviewAgent", interview_agent_node)
 graph.add_node("SaveUserProfile", save_profile_node)
-graph.add_node("ScrapeWebInfo", web_scraping_node)
+
 # Entry point
 graph.set_entry_point("LocateInTree")
 # Edges
@@ -575,9 +578,8 @@ graph.add_edge("CareerPlan", "JobTrends")
 graph.add_edge("JobTrends", "FitScore")
 graph.add_edge("FitScore", "SkillGapAnalyzer")
 graph.add_edge("SkillGapAnalyzer", "TailorResume")
-graph.add_edge("TailorResume", "InterviewAgent")
-graph.add_edge("InterviewAgent", "ScrapeWebInfo")
-graph.add_edge("InterviewAgent", "ScrapeWebInfo")
-graph.add_edge("ScrapeWebInfo", "SaveUserProfile")
+# graph.add_edge("TailorResume", "InterviewAgent")
+# graph.add_edge("InterviewAgent", "SaveUserProfile")
+graph.add_edge("TailorResume", "SaveUserProfile")
 graph.set_finish_point("SaveUserProfile")
 simple_graph = graph.compile()

@@ -1,0 +1,146 @@
+[
+    {
+        "title": "Junior Software Engineer",
+      "level": 1,
+      "career_track": "Software Engineering",
+      "company": "Tech Solutions",
+      "location": "India",
+      "skills_required": ["Python", "Git", "OOP"],
+      "description": "As a Junior Software Engineer, you will assist in writing, testing, and debugging basic code for various software applications. You will also support senior engineers in ensuring that projects are completed according to timelines and quality standards. You should be comfortable working with version control tools like Git and familiar with object-oriented programming principles.",
+      "responsibilities": [
+        "Write and test basic code for software applications.",
+        "Collaborate with senior developers to troubleshoot and resolve bugs.",
+        "Review code written by peers and suggest improvements.",
+        "Participate in sprint planning and code review sessions.",
+        "Enhance codebase by following best practices and maintaining standards."
+      ]
+    },
+    {
+      "title": "Software Engineer",
+      "level": 2,
+      "career_track": "Software Engineering",
+      "company": "Innovative Systems",
+      "location": "USA",
+      "skills_required": ["Data Structures", "Algorithms", "SQL", "APIs"],
+      "description": "As a Software Engineer, you will be responsible for developing scalable systems and APIs. You will write clean, efficient, and maintainable code to build features, improve product functionality, and ensure the software performs well under high traffic conditions. You will also be expected to contribute to design decisions and help implement software best practices.",
+      "responsibilities": [
+        "Develop and maintain scalable systems and APIs.",
+        "Optimize code for performance and scalability.",
+        "Work with cross-functional teams to design and implement new features.",
+        "Contribute to architectural decisions and system design.",
+        "Troubleshoot complex technical issues and develop solutions."
+      ]
+    },
+    {
+      "title": "Senior Software Engineer",
+      "level": 3,
+      "career_track": "Software Engineering",
+      "company": "FutureTech",
+      "location": "Germany",
+      "skills_required": ["System Design", "Cloud", "CI/CD", "Code Review"],
+      "description": "As a Senior Software Engineer, you will lead the design and development of complex systems and platforms. You will mentor junior engineers, review code for quality, and ensure the system is scalable and secure. You will also contribute to continuous integration and deployment (CI/CD) pipelines and participate in architecture and design decisions.",
+      "responsibilities": [
+        "Design and implement large-scale, distributed systems.",
+        "Lead architecture decisions and system design discussions.",
+        "Ensure code quality and consistency by reviewing team members' code.",
+        "Optimize CI/CD pipelines for continuous delivery.",
+        "Mentor junior developers and assist with technical problem-solving."
+      ]
+    },
+    {
+      "title": "Data Scientist",
+      "level": 1,
+      "career_track": "Machine Learning",
+      "company": "DataX",
+      "location": "India",
+      "skills_required": ["Python", "EDA", "Machine Learning", "SQL"],
+      "description": "As a Data Scientist, you will be responsible for analyzing large datasets and building predictive models using machine learning algorithms. You will use your analytical skills to help solve complex business problems and provide actionable insights to stakeholders. Familiarity with data analysis techniques and machine learning frameworks like TensorFlow and Scikit-learn is required.",
+      "responsibilities": [
+        "Analyze large datasets and create machine learning models.",
+        "Conduct exploratory data analysis (EDA) to understand data trends.",
+        "Collaborate with cross-functional teams to implement machine learning models in production.",
+        "Visualize data insights to communicate findings clearly to stakeholders.",
+        "Ensure that models are scalable, efficient, and maintainable."
+      ]
+    },
+    {
+      "title": "ML Engineer",
+      "level": 2,
+      "career_track": "Machine Learning",
+      "company": "AI Labs",
+      "location": "USA",
+      "skills_required": ["Deep Learning", "Model Deployment", "MLOps"],
+      "description": "As an ML Engineer, you will focus on deploying machine learning models to production environments, scaling them for performance, and ensuring their robustness. You will work closely with data scientists and software engineers to optimize and monitor models in live systems. MLOps skills are crucial, as you will be responsible for automating and managing the ML pipeline.",
+      "responsibilities": [
+        "Deploy machine learning models to production environments.",
+        "Monitor and optimize models for real-time performance.",
+        "Collaborate with data scientists to fine-tune models and improve accuracy.",
+        "Develop and maintain scalable MLOps pipelines for continuous model updates.",
+        "Integrate machine learning models with cloud infrastructure and APIs."
+      ]
+    },
+    {
+      "title": "Senior ML Engineer",
+      "level": 3,
+      "career_track": "Machine Learning",
+      "company": "TechForge",
+      "location": "UK",
+      "skills_required": ["Distributed Training", "Feature Stores", "Kubernetes"],
+      "description": "As a Senior ML Engineer, you will lead the design and implementation of scalable machine learning systems. You will be responsible for advanced pipeline automation, distributed model training, and integrating feature stores. Your role will involve mentoring junior team members and ensuring that machine learning infrastructure aligns with business objectives.",
+      "responsibilities": [
+        "Design and implement distributed machine learning pipelines.",
+        "Leverage Kubernetes and cloud platforms for scalable training and inference.",
+        "Guide the implementation of feature stores for model training.",
+        "Ensure ML systems are automated, scalable, and cost-effective.",
+        "Mentor junior engineers and help drive the technical direction of the team."
+      ]
+    },
+    {
+      "title": "Cloud Engineer",
+      "level": 1,
+      "career_track": "DevOps / Cloud",
+      "company": "Cloudify",
+      "location": "India",
+      "skills_required": ["Linux", "AWS", "Terraform", "Shell Scripting"],
+      "description": "As a Cloud Engineer, you will manage cloud infrastructure and work on automation scripts to ensure that our cloud environment is stable, secure, and cost-effective. You will be responsible for configuring and maintaining virtual servers, managing cloud resources, and automating deployment processes using tools like Terraform.",
+      "responsibilities": [
+        "Manage cloud infrastructure and virtual machines.",
+        "Automate infrastructure provisioning and management using Terraform.",
+        "Collaborate with DevOps teams to ensure that cloud resources are scalable and secure.",
+        "Monitor and optimize cloud costs and resource utilization.",
+        "Troubleshoot cloud infrastructure issues and provide support."
+      ]
+    },
+    {
+      "title": "DevOps Engineer",
+      "level": 2,
+      "career_track": "DevOps / Cloud",
+      "company": "NextGen Systems",
+      "location": "Germany",
+      "skills_required": ["CI/CD", "Docker", "Monitoring", "IaC"],
+      "description": "As a DevOps Engineer, you will build and manage CI/CD pipelines, integrate cloud-native tools, and ensure smooth application delivery. You will focus on improving system reliability and deployment frequency. Strong experience with Docker, Kubernetes, and Infrastructure as Code (IaC) tools like Terraform is required.",
+      "responsibilities": [
+        "Build and maintain CI/CD pipelines for automated deployments.",
+        "Develop and implement Infrastructure as Code (IaC) using Terraform.",
+        "Optimize deployment workflows for continuous integration.",
+        "Collaborate with software engineers to enhance the automation of builds and releases.",
+        "Ensure high availability and system reliability for production systems."
+      ]
+    },
+    {
+      "title": "Site Reliability Engineer",
+      "level": 3,
+      "career_track": "DevOps / Cloud",
+      "company": "ReliabilityTech",
+      "location": "USA",
+      "skills_required": ["Kubernetes", "SLOs/SLIs", "Chaos Engineering"],
+      "description": "As a Site Reliability Engineer (SRE), you will be responsible for ensuring system reliability and scalability. You will use your expertise in Kubernetes, monitoring, and Chaos Engineering to improve the resilience of the production environment. This role requires a deep understanding of performance and availability metrics (SLOs/SLIs) and incident management.",
+      "responsibilities": [
+        "Ensure system reliability and scalability by leveraging Kubernetes and other technologies.",
+        "Define and monitor SLOs and SLIs for production systems.",
+        "Implement Chaos Engineering practices to improve resilience.",
+        "Automate incident response and improve observability within the infrastructure.",
+        "Collaborate with engineering teams to address system vulnerabilities and reduce downtime."
+      ]
+    }
+  ]
