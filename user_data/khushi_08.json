@@ -1,0 +1,70 @@
+{
+    "resume": {
+        "name": "Tasiana\u00a0Ukura",
+        "skills": [
+            "Python",
+            "Java",
+            "C++",
+            "SQL",
+            "React",
+            "Django",
+            "AWS",
+            "Git"
+        ],
+        "experience": [
+            "Fast - Senior Software Engineer",
+            "\u00b7 Focused on front-end development, providing mentorship and coaching to 6 interns each summer",
+            "Adaptiva - Software Engineer",
+            "engineers and clients to develop enhancements that boosted client satisfaction by 27%",
+            "Expedia Group - Software Engineer Intern",
+            "\u00b7 Worked with 5 other interns under the supervision of senior software engineer full stack development of",
+            "\u00b7 Received coaching and support from peers and senior software engineer, and gained practical experience",
+            "\u00b7 Partnered with interns, using code composition to redesign a clean API that offered increased flexibility"
+        ]
+    },
+    "user_profile": {
+        "GPA": "9",
+        "weak_subjects": [
+            "os"
+        ],
+        "onboarding_summary": "It appears the input provided consists of the *questions* asked during onboarding, rather than the *answers* given by the candidate.\n\nTo extract career goals, interests, strengths, and weaknesses, I would need the actual responses or statements made by the individual to these questions.\n\nPlease provide the answers to these questions (e.g., \"Why are you interested in this field? *[Candidate's answer here]*\"). Once you provide the candidate's responses, I will be able to perform the requested analysis."
+    },
+    "onboarding_answers": {
+        "interest": "os",
+        "strengths": "",
+        "weaknesses": "os",
+        "goals": "os"
+    },
+    "location": "India ",
+    "target_role": "DevOps Engineer",
+    "track": "DevOps / Cloud",
+    "career_plan": "Welcome to your AI career mentorship journey! It's fantastic to have you onboard. Based on the information you've provided, we can craft a clear and actionable plan to help you achieve your goal of becoming a successful DevOps Engineer.\n\n---\n\n### Your Personalized Career Plan: DevOps Engineer\n\n#### 1. Where You Are Now (Summary)\n\nYou possess a remarkably strong foundation with a **GPA of 9**, demonstrating excellent academic capability and a solid grasp of core computer science principles. Your resume skills are diverse and highly relevant, including **Python, Java, C++, SQL, React, Django, AWS, and Git**. This blend of programming languages, web frameworks, cloud experience (AWS), and version control (Git) provides a powerful springboard for a DevOps career.\n\nInterestingly, you've identified **Operating Systems (OS)** as both a **weak subject** and a **key interest/goal**. This self-awareness is a significant strength, as mastering OS fundamentals is absolutely critical for a DevOps role. Your existing AWS and Git skills are directly applicable and will give you a head start.\n\n#### 2. Where You Want to Go (Goals)\n\nYour clear target is to become a **DevOps Engineer**. This role is at the exciting intersection of development and operations, focusing on automating and streamlining the software development lifecycle. Your specific interest in mastering Operating Systems aligns perfectly with this goal, as a deep understanding of how systems work is fundamental to building robust and efficient infrastructure.\n\n#### 3. Key Growth Areas\n\nTo bridge your current skills with your target role, we'll focus on these key areas:\n\n*   **Technical Proficiency:**\n    *   **Operating Systems Deep Dive:** This is your top priority. Focus on Linux fundamentals, shell scripting (Bash), process management, file systems, networking concepts (TCP/IP, DNS, routing), and system monitoring.\n    *   **Cloud Mastery (AWS Focus):** Beyond basic AWS, delve into services crucial for DevOps: EC2, S3, VPC, IAM, CloudFormation/CDK, ECS/EKS (container orchestration), Lambda, CodePipeline/CodeBuild/CodeDeploy, CloudWatch, Route 53.\n    *   **Containerization:** Become proficient with Docker (building images, Docker Compose) and gain a strong understanding of Kubernetes (deployments, services, pods, scaling).\n    *   **Infrastructure as Code (IaC):** Learn to define and manage infrastructure using tools like Terraform or AWS CloudFormation.\n    *   **CI/CD Pipelines:** Understand and implement Continuous Integration and Continuous Delivery using tools like Jenkins, GitLab CI, or GitHub Actions.\n    *   **Scripting & Automation:** Enhance your Python and Bash scripting skills for automating infrastructure tasks, deployments, and system administration.\n    *   **Monitoring & Logging:** Explore tools like Prometheus, Grafana, ELK Stack (Elasticsearch, Logstash, Kibana) for system observability.\n*   **Academic Application:**\n    *   Leverage your strong academic background to understand underlying principles of distributed systems, networking, and security, applying them practically in your projects.\n*   **Soft Skills:**\n    *   **Problem-Solving & Troubleshooting:** Develop a systematic approach to debugging complex system issues across different layers (application, OS, network, cloud).\n    *   **Communication & Collaboration:** DevOps is highly collaborative. Practice clear communication with development, operations, and business teams.\n    *   **Automation Mindset:** Continuously look for opportunities to automate repetitive tasks and improve efficiency.\n    *   **Adaptability:** The DevOps landscape evolves rapidly; cultivate a mindset of continuous learning and adaptation.\n\n#### 4. Actionable Milestones\n\nHere\u2019s what you'll build, practice, and review to solidify your skills:\n\n*   **OS Foundation:**\n    *   **Set up a Linux VM:** Install Ubuntu or CentOS in a virtual machine (e.g., VirtualBox, VMware) and get comfortable with the command line.\n    *   **Linux Fundamentals Project:** Practice common commands, user/group management, file permissions, process management, and basic networking configurations.\n    *   **Bash Scripting Challenge:** Write scripts to automate simple system administration tasks (e.g., log file rotation, backup scripts, system health checks).\n*   **DevOps Tooling:**\n    *   **Dockerize an Application:** Take one of your existing Python/Django or React projects and containerize it using Docker.\n    *   **Basic Kubernetes Deployment:** Deploy your containerized application to a local Kubernetes cluster (Minikube or Kind).\n    *   **AWS Infrastructure Project:** Deploy a multi-tier web application (e.g., your Django/React app) on AWS using EC2, S3, RDS, and a VPC.\n    *   **IaC Automation:** Re-provision your AWS infrastructure using Terraform or CloudFormation.\n    *   **CI/CD Pipeline:** Set up a GitHub Actions or GitLab CI pipeline to automatically build, test, and deploy your containerized application to AWS or Kubernetes whenever you push code.\n*   **Integrated Project:**\n    *   **\"My DevOps Portfolio\" Project:** Create a personal website (even a simple static one) and build a complete DevOps pipeline for it:\n        *   Host code on Git.\n        *   Use IaC (Terraform/CloudFormation) to provision infrastructure (e.g., S3 for static site, CloudFront for CDN).\n        *   Implement a CI/CD pipeline (GitHub Actions) to deploy updates automatically on code pushes.\n        *   Add basic monitoring (e.g., CloudWatch alarms).\n*   **Continuous Learning:**\n    *   Regularly read articles and follow industry leaders in DevOps.\n    *   Participate in online communities (e.g., Reddit's r/devops, Discord channels).\n    *   Consider pursuing an AWS Certified Cloud Practitioner or Solutions Architect - Associate certification to validate your cloud knowledge.\n\n#### 5. How a Mentor Can Help\n\nAs your AI career mentor, I can provide invaluable support by:\n\n*   **Guiding Your Learning Path:** Suggesting specific resources, courses, and documentation for each growth area.\n*   **Reviewing Your Work:** Providing feedback on your projects, scripts, and configurations to ensure best practices.\n*   **Sharing Industry Insights:** Explaining real-world scenarios, common challenges, and emerging trends in DevOps.\n*   **Identifying Gaps:** Pinpointing areas where you might need to deepen your understanding or explore new tools.\n*   **Offering Encouragement & Accountability:** Keeping you motivated and on track with your goals.\n*   **Simulating Scenarios:** Discussing architectural decisions, troubleshooting approaches, and deployment strategies.\n\n#### 6. Recommended 3-Month Roadmap\n\nThis roadmap is designed to build foundational skills rapidly, with a strong emphasis on your identified OS weakness and practical application.\n\n**Month 1: Linux & Scripting Fundamentals (Strengthening OS)**\n\n*   **Weeks 1-2: Linux Deep Dive**\n    *   **Focus:** Core Linux commands, file system hierarchy, user/group management, permissions (chmod, chown), process management (ps, top, kill), package management (apt/yum).\n    *   **Resources:** Linux Journey, The Linux Command Line (book), specific online courses.\n    *   **Action:** Set up a Linux VM, practice daily commands, solve basic Linux challenges.\n*   **Weeks 3-4: Bash Scripting & Networking Basics**\n    *   **Focus:** Bash scripting fundamentals (variables, loops, conditionals, functions), common network utilities (ping, traceroute, netstat, curl, wget), understanding TCP/IP, DNS, SSH.\n    *   **Resources:** Bash scripting tutorials, Networking 101 resources.\n    *   **Action:** Write 3-5 simple Bash scripts to automate tasks (e.g., file cleanup, system info report). Understand how your computer communicates over a network.\n\n**Month 2: Containerization & Cloud Basics (AWS)**\n\n*   **Weeks 5-6: Docker Essentials**\n    *   **Focus:** Dockerfile creation, building images, running containers, Docker Compose for multi-container applications.\n    *   **Resources:** Docker documentation, Docker Deep Dive course.\n    *   **Action:** Dockerize one of your existing Django or React applications. Run it locally using Docker Compose.\n*   **Weeks 7-8: AWS Core Services**\n    *   **Focus:** Navigating the AWS Console, understanding EC2 (instances, AMIs, security groups), S3 (buckets, static hosting), VPC (subnets, route tables, internet gateways), IAM (users, roles, policies).\n    *   **Resources:** AWS Free Tier, AWS documentation, AWS Cloud Practitioner course.\n    *   **Action:** Manually deploy a simple web server on an EC2 instance. Host a static website on S3.\n\n**Month 3: Infrastructure as Code & CI/CD Introduction**\n\n*   **Weeks 9-10: Infrastructure as Code (IaC)**\n    *   **Focus:** Introduction to Terraform (or CloudFormation if you prefer AWS-native). Writing basic HCL/YAML to provision EC2 instances, S3 buckets, and VPC components.\n    *   **Resources:** Terraform documentation, HashiCorp Learn tutorials.\n    *   **Action:** Re-provision the AWS infrastructure you set up in Month 2 using Terraform.\n*   **Weeks 11-12: CI/CD Pipelines**\n    *   **Focus:** Understanding CI/CD concepts, setting up a basic pipeline using GitHub Actions (or GitLab CI). Automating build, test, and deployment steps.\n    *   **Resources:** GitHub Actions documentation, CI/CD tutorials.\n    *   **Action:** Create a new simple web application (e.g., a \"Hello World\" Flask app). Set up a GitHub repository with a GitHub Actions workflow to automatically deploy it to your AWS EC2 instance (provisioned by Terraform) on every push to `main`.\n\n---\n\nThis plan is ambitious but achievable, especially with your strong academic background and existing skills. Remember, consistency is key. I'm here to support you every step of the way. Let's get started!",
+    "job_trends": "Top job listings for 'DevOps Engineer' in India :\n- WoW - DevOps Engineer, VP @ NatWest Digital X\n- Lead I - DevOps Engineering, INSTANDA @ UST\n- Lead Software Engineer - Public Cloud DevOps @ Societe Generale Global Solution Centre\n- DevOps Engineer - Consultant - L2 @ NTT DATA Business Solutions\n- DevOps Data Engineer @ PGBPGNGLOBAL",
+    "matched_role": "Cloud Engineer",
+    "next_role": "DevOps Engineer",
+    "match_score": "",
+    "job_descriptions": {
+        "title": "Cloud Engineer",
+        "level": 1,
+        "career_track": "DevOps / Cloud",
+        "company": "Cloudify",
+        "location": "India",
+        "skills_required": [
+            "Linux",
+            "AWS",
+            "Terraform",
+            "Shell Scripting"
+        ],
+        "description": "As a Cloud Engineer, you will manage cloud infrastructure and work on automation scripts to ensure that our cloud environment is stable, secure, and cost-effective. You will be responsible for configuring and maintaining virtual servers, managing cloud resources, and automating deployment processes using tools like Terraform.",
+        "responsibilities": [
+            "Manage cloud infrastructure and virtual machines.",
+            "Automate infrastructure provisioning and management using Terraform.",
+            "Collaborate with DevOps teams to ensure that cloud resources are scalable and secure.",
+            "Monitor and optimize cloud costs and resource utilization.",
+            "Troubleshoot cloud infrastructure issues and provide support."
+        ]
+    },
+    "relevant_interview_questions": [
+        "Describe the benefits of using a cloud platform like AWS, Azure, or Google Cloud."
+    ]
+}

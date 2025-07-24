@@ -7,7 +7,11 @@ from agent_testing import (
     job_application_agent,
     career_tree,
     gemini,
-    save_application_pdf
+    save_application_pdf,
+    map_keywords_to_interview_questions,
+    interview_question_mapping_node,
+    extract_keywords_from_job_description,
+    load_interview_questions
 )
 
 # ✅ Initialize chat memory BEFORE anything else
@@ -19,7 +23,11 @@ if "resume_data" not in st.session_state:
 
 if "graph_output" not in st.session_state:
     st.session_state.graph_output = None
-    
+#initialize relevant interview questions
+if "relevant_interview_questions" not in st.session_state:
+    st.session_state.relevant_interview_questions = []
+
+
 # Load job descriptions from a JSON file
 def load_job_descriptions():
     try:
@@ -129,7 +137,9 @@ with tab1:
         st.write("### Responsibilities:")
         for responsibility in selected_job["responsibilities"]:
             st.write(f"- {responsibility}")
-
+            #loading from backend job descriptions
+        # job_descriptions = load_job_descriptions()
+        # st.write("Loaded job descriptions:", job_descriptions)
     # Final Step – Ready to Submit
     if step == len(questions) - 1:
         st.session_state.onboarding_answers[key] = st.session_state[f"input_{key}"]
@@ -149,15 +159,36 @@ with tab1:
                         "GPA": gpa,
                         "weak_subjects": [s.strip() for s in weak_subjects_input.split(",") if s.strip()]
                     },
-                    "onboarding_answers": st.session_state.onboarding_answers
+                    "onboarding_answers": st.session_state.onboarding_answers,
+                    "job_descriptions": job_descriptions,
+                    "relevant_interview_questions": st.session_state.relevant_interview_questions  # Add this line
                 }
+                #debug
+                # st.write("State being passed to backend:", state)
                 with st.spinner("Running mentorship pipeline..."):
+                    #just added state for interview question mapping
+                    state = interview_question_mapping_node(state)  # Process the state in the backend
+                    st.session_state.relevant_interview_questions = state.get("relevant_interview_questions", [])
                     output = simple_graph.invoke(state)
                     st.session_state.graph_output = output
                     st.success("Pipeline executed successfully!")
-            else:
+            else:   
                 st.warning("Please enter your user ID to proceed.")
-
+    
+    # # After mapping interview questions based on job description keywords
+    # st.session_state.relevant_interview_questions = map_keywords_to_interview_questions
+    if "relevant_interview_questions" in st.session_state:
+        relevant_questions = st.session_state.relevant_interview_questions
+        st.write("Relevant Questions in Session State:", relevant_questions)
+        
+        if relevant_questions:
+            st.subheader("📋 Interview Questions to Prepare For")
+            for idx, question in enumerate(relevant_questions, 1):
+                st.markdown(f"{idx}. {question}")
+        else:
+            st.write("No relevant interview questions found based on the selected job.")
+    else:
+        st.warning("Please enter your user ID to proceed.")
     # Show the results
     if st.session_state.graph_output:
         out = st.session_state.graph_output

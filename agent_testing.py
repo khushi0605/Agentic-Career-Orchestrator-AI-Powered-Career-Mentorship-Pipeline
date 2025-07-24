@@ -5,6 +5,7 @@ import json
 import fitz  # PyMuPDF
 import spacy
 import re
+import pandas as pd
 from langgraph.graph import StateGraph
 from typing import TypedDict, List, Dict
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -46,6 +47,8 @@ class State(TypedDict, total=False):
 
     interview_questions: List[str]
     interview_feedback: str
+    relevant_interview_questions: List[str]
+    job_descriptions: List[dict]
 
 # Function to save user profile data in a json file 
 def save_user_profile(user_id, data, folder="user_data"):
@@ -53,6 +56,35 @@ def save_user_profile(user_id, data, folder="user_data"):
     filepath = os.path.join(folder, f"{user_id}.json")
     with open(filepath, "w") as f:
         json.dump(data, f, indent=4)
+
+#function to load interview questions dataset
+file_path="Software_Questions.csv"
+def load_interview_questions(file_path: str) -> pd.DataFrame:
+    try:
+        df = pd.read_csv(file_path, encoding='ISO-8859-1')
+        print("Dataset loaded successfully")
+        print(df.head())  # Print the first few rows to inspect the structure
+        return df
+    except Exception as e:
+        print(f"Error loading interview questions: {e}")
+        return pd.DataFrame()
+interview_questions_df = load_interview_questions("Software_Questions.csv")
+print("Interview Questions Loaded:", interview_questions_df.head())
+    
+#mapping keywords to ask specific interview questions
+def map_keywords_to_interview_questions(keywords: List[str], interview_questions_df: pd.DataFrame) -> List[str]:
+    relevant_questions = []
+    
+    for idx, row in interview_questions_df.iterrows():
+        
+        question_keywords = row['Question'].split(" ")  #keywords are space-separated in the dataset
+        # print("Question Keywords:", question_keywords)
+        for keyword in keywords:
+            if any(kw.lower() == keyword.lower() for kw in question_keywords):
+                relevant_questions.append(row['Question'])
+                break  # If one keyword matches, no need to check others for this question
+    print("Relevant Questions After Mapping:", relevant_questions)
+    return relevant_questions
 
 # for pdf conversion 
 def save_application_pdf(data: dict, filename: str = "job_application.pdf"):
@@ -180,9 +212,54 @@ def load_job_descriptions() -> List[Dict]:
     except Exception as e:
         print(f"Error loading job descriptions: {e}")
         return []
+#extract keywords from job descriptions
+def extract_keywords_from_job_description(job_description: str) -> List[str]:
+    predefined_keywords = [
+        "Python", "Java", "SQL", "Machine Learning", "Cloud", "AWS", "Docker", 
+        "React", "CI/CD", "Debugging", "Git", "APIs", "Data Structures",
+        "Algorithms", "System Design", "OOP", "Agile", "Scrum", "Kubernetes",
+        "DevOps", "Cybersecurity", "Frontend", "Backend",
+        "Full Stack", "Software Development", "Testing", "Deployment","database", "SQL", "NoSQL", "REST", "GraphQL", "Microservices", "Performance Optimization",
+    ]
+    
+    # Extract keywords from the job description based on predefined list
+    keywords = [keyword for keyword in predefined_keywords if keyword.lower() in job_description.lower()]
+    #debug 
+    print("Extracted Keywords from Job Description:", keywords)
+    return keywords
 
+def interview_question_mapping_node(state: State) -> State:
+    relevant_questions = []
+    # Get the selected job description from the state
+    print(state)
+    selected_job = state.get("job_descriptions", [])
+    # print("Relevant Questions:", relevant_questions)
+    # print("Selected Job Description:", selected_job)
+    # if selected_job:
+    if isinstance(selected_job, list) and selected_job:
+        selected_job = selected_job[0]  # Assuming we want the first job in the list
+    
+    print("Selected Job Type:", type(selected_job))  # Debugging line
+    print("Selected Job Content:", selected_job)      # Debugging line
+    
+    if isinstance(selected_job, dict) and "description" in selected_job:
+       
+        job_description = selected_job["description"]
+        
+        # Step 1: Extract keywords from the job description
+        job_keywords = extract_keywords_from_job_description(job_description)
+        
+        # Step 2: Load the interview questions dataset
+        interview_questions_df = load_interview_questions("Software_Questions.csv")
+        
+        # Step 3: Map keywords to relevant interview questions
+        relevant_questions = map_keywords_to_interview_questions(job_keywords, interview_questions_df)
+        
+        # Step 4: Store the relevant questions in the state
+        state["relevant_interview_questions"] = relevant_questions
+        
+    return state
 
-### ^all onboarding nodes 
 career_tree = {
     "track": "Choose from Software Engineering, Machine Learning, DevOps, Cybersecurity, Frontend, Backend",
     "branches": {
@@ -420,89 +497,6 @@ def fit_score_from_tree_node(state: State) -> State:
         summary += "🎉 You have all the skills required for this role!"
     return {**state, "fit_score": score, "fit_score_summary": summary}
 
-# # Fetch interview questions from GeeksforGeeks or LeetCode using SerpAPI
-# # def fetch_interview_questions(role: str) -> List[str]:
-# #     serp_api_key = os.getenv("SERP_API_KEY")
-# #     query = f"{role} interview questions site:geeksforgeeks.org OR site:leetcode.com"
-
-# #     url = f"https://serpapi.com/search.json?q={query}&engine=google&api_key={serp_api_key}"
-# #     try:
-# #         response = requests.get(url)
-# #         if response.status_code == 200:
-# #             results = response.json().get("organic_results", [])
-# #             questions = []
-# #             for r in results:
-# #                 snippet = r.get("snippet", "")
-# #                 if any(kw in snippet.lower() for kw in ["question", "problem", "code", "example"]):
-# #                     questions.append(snippet.strip())
-# #                 if len(questions) >= 5:
-# #                     break
-# #             return questions
-# #     except Exception as e:
-# #         print("Fetch error:", e)
-# #     return ["No questions found. Try again later."]
-# def fetch_interview_questions(role: str) -> List[str]:
-#     serp_api_key = os.getenv("SERP_API_KEY")
-#     query = f"{role} interview questions site:geeksforgeeks.org"
-
-#     url = f"https://serpapi.com/search.json?q={query}&engine=google&api_key={serp_api_key}"
-#     try:
-#         response = requests.get(url)
-#         if response.status_code == 200:
-#             results = response.json().get("organic_results", [])
-#             article_texts = [r.get("snippet", "") for r in results if "question" in r.get("snippet", "").lower()]
-
-#             if not article_texts:
-#                 return ["⚠️ No direct questions found. Try again later."]
-
-#             # Ask Gemini to extract actual questions from the text
-#             raw_text = "\n".join(article_texts[:3])
-#             prompt = f"""From the following text snippets, extract 5 clear interview questions only.
-# Snippets:
-# {raw_text}
-# Output: List them clearly."""
-#             return gemini.invoke(prompt).content.strip().split("\n")
-#     except Exception as e:
-#         return [f"❌ Error fetching questions: {str(e)}"]
-
-
-# # def interview_agent_node(state: State) -> State:
-# #     role = state.get("target_role") or state.get("matched_role") or "Software Engineer"
-# #     questions = fetch_interview_questions(role)
-
-# #     prompt = f"""
-# # You are an interview coach. Below are some typical questions for a {role} role:
-# # {chr(10).join(f"{i+1}. {q}" for i, q in enumerate(questions))}
-
-# # Ask the user 2 of these. Evaluate their answers. Give:
-# # - A score out of 10
-# # - A short, encouraging feedback
-# # - Specific ways to improve if weak
-# # """
-
-# #     gemini_response = gemini.invoke(prompt).content
-
-# #     return {
-# #         **state,
-# #         "interview_questions": questions,
-# #         "interview_feedback": gemini_response
-# #     }
-# def interview_agent_node(state: State) -> State:
-#     role = state.get("target_role") or state.get("matched_role") or "Software Engineer"
-#     questions = fetch_interview_questions(role)
-#     question_1 = questions[0] if questions else "Tell me about a recent project."
-
-#     # Save in session for next step
-#     return {
-#         **state,
-#         "interview_questions": questions,
-#         "current_interview_question": question_1,
-#         "interview_feedback": "💬 Waiting for your answer..."
-#     }
-
-
-# ### to further get the interview data etc. 
-
 def tailor_resume_node(state: State) -> State:
     resume, role = state["resume"], state["matched_role"]
     prompt = f"""Tailor the following resume to match the job role: {role}.
@@ -551,7 +545,8 @@ def save_profile_node(state):
         "matched_role": state.get("matched_role", ""),
         "next_role": state.get("next_role", ""),
         "match_score": state.get("match_score", ""),
-        "job_descriptions": state.get("job_descriptions", {})  # Add job descriptions to the saved state
+        "job_descriptions": state.get("job_descriptions", {}),  # Add job descriptions to the saved state
+        "relevant_interview_questions": state.get("relevant_interview_questions", [])
     })
     return state
 
@@ -566,8 +561,8 @@ graph.add_node("JobTrends", combined_job_trend_node)
 graph.add_node("FitScore", fit_score_from_tree_node)
 graph.add_node("TailorResume", tailor_resume_node)
 graph.add_node("SkillGapAnalyzer", skill_gap_analyzer_node)
-# graph.add_node("InterviewAgent", interview_agent_node)
 graph.add_node("SaveUserProfile", save_profile_node)
+graph.add_node("InterviewQuestionMapping", interview_question_mapping_node)
 
 # Entry point
 graph.set_entry_point("LocateInTree")
@@ -577,9 +572,8 @@ graph.add_edge("AnalyzeOnboarding", "CareerPlan")
 graph.add_edge("CareerPlan", "JobTrends")       
 graph.add_edge("JobTrends", "FitScore")
 graph.add_edge("FitScore", "SkillGapAnalyzer")
-graph.add_edge("SkillGapAnalyzer", "TailorResume")
-# graph.add_edge("TailorResume", "InterviewAgent")
-# graph.add_edge("InterviewAgent", "SaveUserProfile")
+graph.add_edge("SkillGapAnalyzer", "InterviewQuestionMapping")
+graph.add_edge("InterviewQuestionMapping", "TailorResume")
 graph.add_edge("TailorResume", "SaveUserProfile")
 graph.set_finish_point("SaveUserProfile")
 simple_graph = graph.compile()
