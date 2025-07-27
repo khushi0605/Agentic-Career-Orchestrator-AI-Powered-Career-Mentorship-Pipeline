@@ -1,0 +1,137 @@
+import speech_recognition as sr
+import cv2
+from transformers import pipeline
+import time
+from deepface import DeepFace  # Import DeepFace for emotion recognition
+
+# Initialize HuggingFace sentiment analysis pipeline
+sentiment_pipeline = pipeline("sentiment-analysis")
+
+# Function to analyze text responses
+def analyze_text_response(text):
+    sentiment = sentiment_pipeline(text)[0]
+    return sentiment
+
+# Function to capture voice input and convert it to text
+def capture_voice_input():
+    recognizer = sr.Recognizer()
+    microphone = sr.Microphone()
+    
+    with microphone as source:
+        print("Please speak your answer...")
+        recognizer.adjust_for_ambient_noise(source)
+        audio = recognizer.listen(source)
+        
+    try:
+        # Convert speech to text using Google's speech recognition
+        text = recognizer.recognize_google(audio)
+        print("You said:", text)
+        return text
+    except sr.UnknownValueError:
+        print("Sorry, I could not understand the audio.")
+        return ""
+    except sr.RequestError:
+        print("Error with the speech recognition service.")
+        return ""
+
+# Function to capture webcam input and perform real-time facial emotion analysis using DeepFace
+def capture_webcam_input():
+    cap = cv2.VideoCapture(0)  # 0 is the default camera
+    print("Press 'q' to stop capturing webcam.")
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        
+        # Detect facial emotions using DeepFace
+        try:
+            analysis = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
+            dominant_emotion = analysis[0]['dominant_emotion']
+            print(f"Detected Emotion: {dominant_emotion}")
+            
+            # Display the webcam feed with the emotion detected
+            cv2.putText(frame, f"Emotion: {dominant_emotion}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.imshow('Webcam', frame)
+        
+        except Exception as e:
+            print(f"Error in emotion analysis: {e}")
+            # Display the webcam feed without emotion text
+            cv2.imshow('Webcam', frame)
+        
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+    # Return the detected emotion from DeepFace
+    return {"emotion": dominant_emotion}  # Returns the emotion detected
+
+# Function to ask questions and gather responses (text, voice, and webcam)
+def ask_questions_and_assess():
+    # Define the questions
+    questions = [
+        "Why do you want to pursue a career in software development?",
+        "What are your strengths as a developer?",
+        "Tell me about a challenge you overcame in your previous projects.",
+    ]
+    
+    results = {}
+
+    for question in questions:
+        print(f"\nQuestion: {question}")
+        
+        # Text input collection
+        text_response = input("Your text answer: ")
+        if text_response:
+            results["text"] = analyze_text_response(text_response)
+        
+        # Voice input collection
+        voice_response = input("Would you like to answer via Voice? (yes/no): ")
+        if voice_response.lower() == "yes":
+            voice_response = capture_voice_input()
+            if voice_response:
+                results["voice"] = analyze_text_response(voice_response)
+        
+        # Webcam input collection
+        webcam_response = input("Would you like to answer via Webcam? (yes/no): ")
+        if webcam_response.lower() == "yes":
+            webcam_response = capture_webcam_input()
+            results["webcam"] = webcam_response  # Store the dynamic emotion
+
+        # Provide feedback based on text/voice/webcam responses
+        if "text" in results:
+            print("Text Answer Sentiment:", results["text"])
+        if "voice" in results:
+            print("Voice Answer Sentiment:", results["voice"])
+        if "webcam" in results:
+            print(f"Webcam Emotion Detected: {results['webcam']['emotion']}")
+
+        time.sleep(2)  # Add a short delay before the next question
+
+    return results
+
+# Main function to run the interviewer and collect results
+def run_interview():
+    print("Welcome to the AI-powered interview!")
+    print("Answer the questions using text, voice, or webcam.")
+    input("Press Enter to start the interview...")
+
+    results = ask_questions_and_assess()
+
+    # Save the results to a file
+    with open("interview_results.txt", "w") as file:
+        file.write("Interview Results:\n")
+        file.write("----------------------\n")
+        for key, value in results.items():
+            file.write(f"{key.capitalize()} Response: {value}\n")
+    
+    print("\nInterview Complete! The results have been saved to 'interview_results.txt'.")
+
+# Run the interview function
+run_interview()
+
+# score: This is the confidence score associated with the prediction. It is a probability indicating how confident the model is in its prediction.
+# label: This is the predicted sentiment label, which can be either 'POSITIVE' or 'NEGATIVE'.
+# confidence score: from 0 to 1, where 1 indicates high confidence in the prediction.(float)

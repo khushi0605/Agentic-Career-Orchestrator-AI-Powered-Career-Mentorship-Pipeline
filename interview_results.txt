@@ -1,0 +1,5 @@
+Interview Results:
+----------------------
+Text Response: {'label': 'POSITIVE', 'score': 0.9996331930160522}
+Voice Response: {'label': 'POSITIVE', 'score': 0.9990853071212769}
+Webcam Response: {'emotion': 'neutral'}
