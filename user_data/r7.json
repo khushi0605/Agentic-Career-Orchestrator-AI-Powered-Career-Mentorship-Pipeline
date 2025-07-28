@@ -1,0 +1,72 @@
+{
+    "resume": {
+        "name": "Tasiana\u00a0Ukura",
+        "skills": [
+            "Python",
+            "Java",
+            "C++",
+            "SQL",
+            "React",
+            "Django",
+            "AWS",
+            "Git"
+        ],
+        "experience": [
+            "Fast - Senior Software Engineer",
+            "\u00b7 Focused on front-end development, providing mentorship and coaching to 6 interns each summer",
+            "Adaptiva - Software Engineer",
+            "engineers and clients to develop enhancements that boosted client satisfaction by 27%",
+            "Expedia Group - Software Engineer Intern",
+            "\u00b7 Worked with 5 other interns under the supervision of senior software engineer full stack development of",
+            "\u00b7 Received coaching and support from peers and senior software engineer, and gained practical experience",
+            "\u00b7 Partnered with interns, using code composition to redesign a clean API that offered increased flexibility"
+        ]
+    },
+    "user_profile": {
+        "GPA": "8",
+        "weak_subjects": [
+            "o"
+        ],
+        "onboarding_summary": "It looks like you've provided the *questions* asked during onboarding, but not the *answers* themselves.\n\nTo analyze and extract the information you're looking for (Career Goals, Interests, Strengths, Weaknesses), I need the actual responses to these questions.\n\n**Please provide the answers given by the individual, and I will be happy to analyze them for you based on the categories you've specified.**\n\n---\n\n**However, I can tell you what I would look for in each answer if you provide them:**\n\n1.  **Career Goals:**\n    *   **Source Question:** \"What are your short- and long-term goals?\"\n    *   **What I'd look for:** Explicit statements about desired roles, industries, achievements (e.g., \"become a senior data scientist,\" \"lead a team,\" \"start my own company\"). Also, note any mention of specific skills they want to acquire or problems they want to solve that align with career progression.\n\n2.  **Interests:**\n    *   **Source Question:** \"Why are you interested in this field?\"\n    *   **What I'd look for:** Themes like specific technologies, problem types (e.g., \"solving complex data puzzles,\" \"building user-friendly interfaces\"), industries, or the impact they want to make. Also, note any hobbies or personal pursuits mentioned that might relate to their professional drive.\n\n3.  **Strengths:**\n    *   **Source Question:** \"What are your strengths?\"\n    *   **What I'd look for:** Specific skills (e.g., \"problem-solving,\" \"communication,\" \"coding in Python,\" \"project management\"), positive personality traits (e.g., \"detail-oriented,\" \"adaptable,\" \"team player\"), and examples of past successes where these strengths were demonstrated.\n\n4.  **Weaknesses:**\n    *   **Source Question:** \"What are your weaknesses?\"\n    *   **What I'd look for:** Areas they identify as needing improvement, challenges they face, or skills they are actively working on developing. Crucially, note if they also mention *how* they are addressing these weaknesses, indicating self-awareness and a growth mindset."
+    },
+    "onboarding_answers": {
+        "interest": "o",
+        "strengths": "",
+        "weaknesses": "o",
+        "goals": "o"
+    },
+    "location": "India",
+    "target_role": "Junior Software Engineer",
+    "track": "Software Engineering",
+    "career_plan": "Hello there! Welcome to your AI career mentorship journey. It's great to have you on board. Based on the information you've provided, we can craft a powerful plan to help you achieve your goal of becoming a Junior Software Engineer.\n\nLet's lay out a clear path forward, designed to leverage your strengths and strategically address areas for growth.\n\n---\n\n### Your Personalized Career Plan: Junior Software Engineer\n\n#### 1. Where You Are Now (Summary)\n\nYou possess a strong foundational technical skillset, including proficiency in multiple programming languages (Python, Java, C++), web development frameworks (React, Django), database management (SQL), cloud services (AWS), and version control (Git). Your GPA of 8 indicates a solid academic understanding and dedication. This diverse skill set provides an excellent springboard for a Junior Software Engineer role.\n\nWe note that some self-assessment areas like specific interests, strengths, weaknesses, and detailed goals are yet to be fully articulated. This is perfectly normal at the start of a mentorship, and these will be key areas we explore together to personalize your path even further.\n\n#### 2. Where You Want to Go (Goals)\n\nYour primary goal is clear: **Secure a role as a Junior Software Engineer.** This entails not just landing a job, but also building a robust portfolio, mastering interview techniques, and continuously expanding your practical knowledge to contribute effectively in a professional environment.\n\n#### 3. Key Growth Areas\n\nTo bridge the gap from your current skills to your target role, we'll focus on these critical areas:\n\n*   **Technical Deepening & Specialization:** While you have a broad range of skills, junior roles often benefit from a deeper mastery of a specific stack. Given your React and Django skills, a full-stack web development path is a strong candidate. We'll focus on building projects that integrate these, along with AWS and SQL.\n*   **Data Structures & Algorithms (DSA):** Essential for technical interviews at almost all software companies. Consistent practice is key to problem-solving proficiency.\n*   **System Design Fundamentals:** Understanding how software systems are built and interact is crucial, even for junior roles. This helps you think about scalability, reliability, and architecture.\n*   **Practical Application & Portfolio Building:** Translating theoretical knowledge into tangible projects that showcase your abilities and problem-solving skills.\n*   **Interview Preparation & Soft Skills:** Mastering the art of technical and behavioral interviews, including communication, teamwork, and problem-solving articulation. We'll also explore your personal strengths and weaknesses to refine your approach.\n\n#### 4. Actionable Milestones\n\nHere\u2019s what you'll be building, practicing, and reviewing:\n\n*   **Build:**\n    *   **A Comprehensive Full-Stack Project:** Design and implement a web application using React for the frontend, Django for the backend, SQL for the database, and deploy it on AWS. This project should solve a real-world (even if small) problem and demonstrate your ability to integrate different technologies.\n    *   **Smaller, Focused Projects:** Create mini-projects or contribute to open source to demonstrate specific skills (e.g., a Python script for data processing, a Java application demonstrating OOP principles).\n*   **Practice:**\n    *   **Daily LeetCode/HackerRank:** Focus on a mix of easy and medium problems across various DSA topics (arrays, strings, linked lists, trees, graphs, dynamic programming). Aim for 3-5 problems per week, focusing on understanding the optimal solution and different approaches.\n    *   **Mock Interviews:** Conduct regular mock technical and behavioral interviews with peers or your mentor to refine your communication, problem-solving under pressure, and ability to articulate your thought process.\n    *   **Code Reviews:** Practice reviewing code (e.g., open-source projects, peer code) to improve your understanding of best practices and identify potential issues.\n*   **Review:**\n    *   **Core Computer Science Fundamentals:** Revisit operating systems, networking, and database concepts.\n    *   **Specific Framework Documentation:** Deep dive into React and Django documentation to understand advanced features and best practices.\n    *   **Interview Patterns:** Study common interview questions and patterns for Junior Software Engineer roles.\n\n#### 5. How a Mentor Can Help\n\nYour mentor will be your guide and accountability partner throughout this journey:\n\n*   **Personalized Guidance:** Help you narrow down your focus, identify specific areas for improvement, and tailor resources to your learning style.\n*   **Project Ideation & Feedback:** Assist in brainstorming impactful project ideas and provide constructive feedback on your code and project architecture.\n*   **Interview Coaching:** Conduct mock interviews, provide feedback on your technical explanations, and help you craft compelling answers to behavioral questions.\n*   **Resume & Portfolio Review:** Optimize your resume, LinkedIn profile, and project portfolio to stand out to recruiters.\n*   **Networking Strategies:** Guide you on how to effectively network and connect with professionals in the industry.\n*   **Accountability & Motivation:** Keep you on track with your goals, celebrate your successes, and help you navigate challenges.\n*   **Blind Spot Identification:** Help you uncover areas you might not realize need improvement, from technical gaps to soft skills.\n\n#### 6. Recommended 3-Month Roadmap\n\nThis roadmap provides a structured approach. We'll adjust it based on your progress and evolving needs.\n\n**Month 1: Foundation & Focus**\n\n*   **Week 1-2: DSA Deep Dive (Part 1)**\n    *   Review fundamental data structures (Arrays, Linked Lists, Stacks, Queues, Hash Maps).\n    *   Practice 10-15 easy LeetCode problems covering these topics.\n    *   Choose your primary specialization stack (e.g., React/Django full-stack).\n*   **Week 3-4: Core Technologies & Project Planning**\n    *   Deepen understanding of React (hooks, state management) and Django (REST APIs, ORM).\n    *   Begin planning your main full-stack project: define scope, features, and tech stack integration.\n    *   Practice 5-7 medium LeetCode problems focusing on chosen DSA topics.\n\n**Month 2: Build & Apply**\n\n*   **Week 5-6: Project Development (Phase 1)**\n    *   Start building your full-stack project: set up the backend (Django), database (SQL), and initial frontend (React) structure.\n    *   Integrate basic CRUD operations.\n    *   Continue daily DSA practice (mix of easy/medium).\n*   **Week 7-8: Project Development (Phase 2) & System Design Basics**\n    *   Add more complex features to your project (e.g., user authentication, advanced UI components).\n    *   Begin learning fundamental system design concepts (e.g., client-server architecture, databases, APIs, caching).\n    *   Refine your resume and LinkedIn profile, incorporating your new project and skills.\n\n**Month 3: Polish & Prepare**\n\n*   **Week 9-10: Project Completion & Interview Prep (DSA)**\n    *   Finalize your full-stack project: ensure it's deployed on AWS, well-documented, and presentable.\n    *   Intensify DSA practice, focusing on medium/hard problems and common interview patterns.\n    *   Start practicing explaining your thought process aloud for DSA problems.\n*   **Week 11-12: Mock Interviews & Job Applications**\n    *   Conduct at least 2-3 full mock technical interviews with your mentor or peers.\n    *   Practice behavioral interview questions.\n    *   Begin actively applying for Junior Software Engineer roles, tailoring your applications.\n    *   Network with professionals in your target companies.\n\n---\n\nThis plan is a dynamic blueprint. We'll work together to adapt it as you progress, discover new interests, and gain clarity on your strengths and weaknesses. Your dedication combined with this structured approach will set you up for success. Let's get started!",
+    "job_trends": "Top job listings for 'Junior Software Engineer' in India:\n- Junior Software Engineer (Full Stack Developer - Angular & .NET Core) @ SIONIQ\n- Junior Software Developer @ ExxonMobil\n- Junior Software Developer (Tech) @ HyScaler\n- Java Software Engineer @ Punctuations\n- Jr. Software Engineer @ Unique Systems Skills LLC.",
+    "matched_role": "Junior Software Engineer",
+    "next_role": "Junior Software Engineer",
+    "match_score": "",
+    "job_descriptions": {
+        "title": "Junior Software Engineer",
+        "level": 1,
+        "career_track": "Software Engineering",
+        "company": "Tech Solutions",
+        "location": "India",
+        "skills_required": [
+            "Python",
+            "Git",
+            "OOP"
+        ],
+        "description": "As a Junior Software Engineer, you will assist in writing, testing, and debugging basic code for various software applications. You will also support senior engineers in ensuring that projects are completed according to timelines and quality standards. You should be comfortable working with version control tools like Git and familiar with object-oriented programming principles.",
+        "responsibilities": [
+            "Write and test basic code for software applications.",
+            "Collaborate with senior developers to troubleshoot and resolve bugs.",
+            "Review code written by peers and suggest improvements.",
+            "Participate in sprint planning and code review sessions.",
+            "Enhance codebase by following best practices and maintaining standards."
+        ]
+    },
+    "relevant_interview_questions": [
+        "Explain the difference between Git and SVN (Subversion).",
+        "Explain the role of Git branching strategies like GitFlow.",
+        "What is Git rebase, and when would you use it?",
+        "Discuss the importance of automated testing in CI/CD pipelines."
+    ]
+}

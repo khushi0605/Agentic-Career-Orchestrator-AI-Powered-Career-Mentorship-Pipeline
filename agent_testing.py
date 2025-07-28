@@ -49,6 +49,7 @@ class State(TypedDict, total=False):
     interview_feedback: str
     relevant_interview_questions: List[str]
     job_descriptions: List[dict]
+   
 
 # Function to save user profile data in a json file 
 def save_user_profile(user_id, data, folder="user_data"):

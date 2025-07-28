@@ -1,7 +1,7 @@
 import streamlit as st
 import json
 from pprint import pprint
-from interactive_interview import capture_voice_input, capture_webcam_input
+from interactive_interview import capture_voice_input, capture_webcam_input, calculate_similarity
 from agent_testing import (
     parse_resume_from_pdf,
     simple_graph,
@@ -199,10 +199,81 @@ with tab1:
             st.write("### Interview Questions")
             
             # Initialize dictionaries to store responses
-            voice_answers = {}
-            webcam_answers = {}
-            text_answers = {}
+            # voice_answers = {}
+            # webcam_answers = {}
+            # text_answers = {}
+            # similarity_scores = {}
+            user_answers = {
+            "text_answers": {},
+            "voice_answers": {},
+            "webcam_answers": {},
+            "similarity_scores": {}
+        }
+            # dataset = st.session_state.get("Software_Questions.csv", [])
+            dataset = load_interview_questions("Software_Questions.csv")  # Load the dataset
 
+            # Define relevant_answers based on the dataset
+            relevant_answers = {}
+            # for idx, row in dataset.iterrows():
+            #     relevant_answers[idx + 1] = row["Answer"]  # Mapping question number to its corresponding answer
+            print(f"Processing {len(relevant_questions)} relevant questions...")
+            print("Available dataset columns:", dataset.columns.tolist())
+        
+            for idx, question in enumerate(relevant_questions, 1):
+                print(f"\n--- Processing Question {idx} ---")
+                print(f"Question: {question}")
+                
+                # Try exact matching first
+                matching_row = dataset[dataset['Question'].str.strip().str.lower() == question.strip().lower()]
+                
+                if not matching_row.empty:
+                    answer = matching_row.iloc[0]['Answer']
+                    relevant_answers[idx] = answer
+                    print(f"✅ EXACT MATCH FOUND")
+                    print(f"Answer: {answer[:100]}...")
+                else:
+                    print("❌ No exact match found, trying partial matching...")
+                    
+                    # Try partial matching with different strategies
+                    question_words = question.lower().split()
+                    best_match = None
+                    max_word_matches = 0
+                    
+                    for dataset_idx, row in dataset.iterrows():
+                        dataset_question = row['Question'].lower()
+                        word_matches = sum(1 for word in question_words if word in dataset_question)
+                        
+                        if word_matches > max_word_matches and word_matches >= 2:  # At least 2 words must match
+                            max_word_matches = word_matches
+                            best_match = row
+                    
+                    if best_match is not None:
+                        relevant_answers[idx] = best_match['Answer']
+                        print(f"✅ PARTIAL MATCH FOUND ({max_word_matches} words matched)")
+                        print(f"Matched Dataset Question: {best_match['Question']}")
+                        print(f"Answer: {best_match['Answer'][:100]}...")
+                    else:
+                        relevant_answers[idx] = "No matching answer found in dataset"
+                        print(f"❌ NO MATCH FOUND")
+
+                # Debug print to verify final mapping
+                print(f"\n=== FINAL MAPPING SUMMARY ===")
+                for idx, answer in relevant_answers.items():
+                    print(f"Question {idx}: {answer[:50] if answer else 'None'}...")
+                print("===============================\n")
+        
+            # for idx, question in enumerate(relevant_questions,1):
+            #     # Find the question in the dataset that matches
+            #     matching_row = dataset[dataset['Question'] == question]
+            #     print("Matching Row:", matching_row)  # Debugging line to check the matching row
+            #     if not matching_row.empty:
+            #         relevant_answers[question] = matching_row.iloc[0]['Answer']
+            #         # Get the answer for this specific question
+            #     else:
+            #         relevant_answers[question] = None
+
+            # debug
+            print("Relevant Answers from Dataset:", relevant_answers)
             # Iterate through the questions and display them
             for idx, question in enumerate(relevant_questions, 1):
                 st.subheader(f"Question {idx}: {question}")
@@ -210,34 +281,46 @@ with tab1:
                 # Text input for the user to answer
                 text_answer = st.text_area(f"Your answer for question {idx}:", key=f"text_answer_{idx}")
                 if text_answer:
-                    text_answers[idx] = text_answer  # Store text answer in the dictionary
-                
+                    user_answers["text_answers"][idx] = text_answer  # Store text answer in the dictionary
+                     # Find the corresponding answer from the dataset
+                    dataset_answer = relevant_answers.get(idx)  # Retrieve the corresponding answer from the dataset
+                    #debug 1
+                    print(f"User Answer: {text_answer}") 
+                    print(f"Dataset Answer: {dataset_answer}")
+                    if dataset_answer:
+                        similarity = calculate_similarity(text_answer, dataset_answer)  # Calculate similarity
+                        print(f"Similarity Score: {similarity}")
+                        user_answers["similarity_scores"][idx] = similarity  # Store similarity score
+                        st.write(f"**Similarity Score (Text Answer):** {similarity * 100:.2f}%")
+
                 # Voice input option (triggered by button)
                 if st.button(f"Answer question {idx} by Voice"):
                     voice_answer = capture_voice_input()  # Capture voice input
                     if voice_answer:
-                        voice_answers[idx] = voice_answer  # Store voice response
+                        user_answers["voice_answers"][idx] = voice_answer # Store voice response
+                        dataset_answer = relevant_answers.get(idx)
+                        if dataset_answer:
+                            similarity = calculate_similarity(voice_answer, dataset_answer)  # Calculate similarity
+                            user_answers["similarity_scores"][idx] = similarity   # Store similarity score
+                            st.write(f"**Similarity Score (Voice Answer):** {similarity * 100:.2f}%")
                     st.write(f"Voice Response: {voice_answer}")
-                
+                    
                 # Webcam input option (triggered by button)
                 if st.button(f"Answer question {idx} using Webcam"):
                     webcam_answer = capture_webcam_input()  # Capture webcam input
                     if webcam_answer:
-                        webcam_answers[idx] = webcam_answer["emotion"]  # Store webcam emotion
+                        user_answers["webcam_answers"][idx] = webcam_answer["emotion"]  # Store webcam emotion
                     st.write(f"Webcam Emotion Detected: {webcam_answer['emotion']}")
 
-            # Store the results (responses) in session state
-            st.session_state["responses"] = {
-                "text_answers": text_answers,
-                "voice_answers": voice_answers,
-                "webcam_answers": webcam_answers
-            }
-            
+              # Store the results (responses) in session state
+            st.session_state["responses"] = user_answers
+        
             # Display the responses here if needed
             st.write("### Interview Responses:")
-            st.write("**Text Answers:**", text_answers)
-            st.write("**Voice Answers:**", voice_answers)
-            st.write("**Webcam Emotion Answers:**", webcam_answers)
+            st.write("**Text Answers:**", user_answers["text_answers"])
+            st.write("**Voice Answers:**", user_answers["voice_answers"])
+            st.write("**Webcam Emotion Answers:**", user_answers["webcam_answers"])
+            st.write("**Similarity Scores:**", user_answers["similarity_scores"])
 
         else:
             st.warning("No relevant interview questions found. Please run the mentorship pipeline first.")

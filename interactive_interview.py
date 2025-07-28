@@ -9,6 +9,9 @@ from transformers import pipeline
 import time
 import streamlit as st
 from deepface import DeepFace  # Import DeepFace for emotion recognition
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
 
 # Initialize HuggingFace sentiment analysis pipeline
 sentiment_pipeline = pipeline("sentiment-analysis")
@@ -113,6 +116,24 @@ def capture_webcam_input():
 
     cap.release()  # Release the webcam
     return {"emotion": emotion}
+
+# Function to analyze the similarity of responses and dataset answers 
+def calculate_similarity(user_answers, dataset_answer):
+    # Initialize the vectorizer
+    tfidf_vectorizer = TfidfVectorizer(stop_words="english")
+    
+    # Transform both answers into tf-idf vectors
+    # tfidf_matrix = tfidf_vectorizer.fit_transform([user_answers, dataset_answer])
+    # Combine the user answer and dataset answer into a list
+    answers = [user_answers, dataset_answer]
+    
+    # Transform the answers into vector form
+    tfidf_matrix = tfidf_vectorizer.fit_transform(answers)
+    
+    # Compute cosine similarity
+    cosine_sim = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
+
+    return cosine_sim[0][0]  # Return the similarity score (0 to 1)
 
 # Function to ask questions and gather responses (text, voice, and webcam)
 def ask_questions_and_assess(questions: list):
