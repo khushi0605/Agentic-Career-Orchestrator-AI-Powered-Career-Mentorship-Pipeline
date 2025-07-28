@@ -1,6 +1,7 @@
 import streamlit as st
 import json
 from pprint import pprint
+from interactive_interview import capture_voice_input, capture_webcam_input
 from agent_testing import (
     parse_resume_from_pdf,
     simple_graph,
@@ -177,18 +178,72 @@ with tab1:
     
     # # After mapping interview questions based on job description keywords
     # st.session_state.relevant_interview_questions = map_keywords_to_interview_questions
+    #previous
+    # if "relevant_interview_questions" in st.session_state:
+    #     relevant_questions = st.session_state.relevant_interview_questions
+    #     st.write("Relevant Questions in Session State:", relevant_questions)
+        
+    #     if relevant_questions:
+    #         st.subheader("📋 Interview Questions to Prepare For")
+    #         for idx, question in enumerate(relevant_questions, 1):
+    #             st.markdown(f"{idx}. {question}")
+    #     else:
+    #         st.write("No relevant interview questions found based on the selected job.")
+    # else:
+    #     st.warning("Please enter your user ID to proceed.")
+    #newwww
     if "relevant_interview_questions" in st.session_state:
-        relevant_questions = st.session_state.relevant_interview_questions
-        st.write("Relevant Questions in Session State:", relevant_questions)
+        relevant_questions = st.session_state.relevant_interview_questions  # Fetch dynamic questions
         
         if relevant_questions:
-            st.subheader("📋 Interview Questions to Prepare For")
+            st.write("### Interview Questions")
+            
+            # Initialize dictionaries to store responses
+            voice_answers = {}
+            webcam_answers = {}
+            text_answers = {}
+
+            # Iterate through the questions and display them
             for idx, question in enumerate(relevant_questions, 1):
-                st.markdown(f"{idx}. {question}")
+                st.subheader(f"Question {idx}: {question}")
+                
+                # Text input for the user to answer
+                text_answer = st.text_area(f"Your answer for question {idx}:", key=f"text_answer_{idx}")
+                if text_answer:
+                    text_answers[idx] = text_answer  # Store text answer in the dictionary
+                
+                # Voice input option (triggered by button)
+                if st.button(f"Answer question {idx} by Voice"):
+                    voice_answer = capture_voice_input()  # Capture voice input
+                    if voice_answer:
+                        voice_answers[idx] = voice_answer  # Store voice response
+                    st.write(f"Voice Response: {voice_answer}")
+                
+                # Webcam input option (triggered by button)
+                if st.button(f"Answer question {idx} using Webcam"):
+                    webcam_answer = capture_webcam_input()  # Capture webcam input
+                    if webcam_answer:
+                        webcam_answers[idx] = webcam_answer["emotion"]  # Store webcam emotion
+                    st.write(f"Webcam Emotion Detected: {webcam_answer['emotion']}")
+
+            # Store the results (responses) in session state
+            st.session_state["responses"] = {
+                "text_answers": text_answers,
+                "voice_answers": voice_answers,
+                "webcam_answers": webcam_answers
+            }
+            
+            # Display the responses here if needed
+            st.write("### Interview Responses:")
+            st.write("**Text Answers:**", text_answers)
+            st.write("**Voice Answers:**", voice_answers)
+            st.write("**Webcam Emotion Answers:**", webcam_answers)
+
         else:
-            st.write("No relevant interview questions found based on the selected job.")
+            st.warning("No relevant interview questions found. Please run the mentorship pipeline first.")
     else:
-        st.warning("Please enter your user ID to proceed.")
+        st.write("No interview questions available.")
+
     # Show the results
     if st.session_state.graph_output:
         out = st.session_state.graph_output

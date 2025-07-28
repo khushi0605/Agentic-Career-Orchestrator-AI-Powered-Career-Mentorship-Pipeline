@@ -1,7 +1,13 @@
+# # score: This is the confidence score associated with the prediction. It is a probability indicating how confident the model is in its prediction.
+# # label: This is the predicted sentiment label, which can be either 'POSITIVE' or 'NEGATIVE'.
+# # confidence score: from 0 to 1, where 1 indicates high confidence in the prediction.(float)
+
+#integrated 
 import speech_recognition as sr
 import cv2
 from transformers import pipeline
 import time
+import streamlit as st
 from deepface import DeepFace  # Import DeepFace for emotion recognition
 
 # Initialize HuggingFace sentiment analysis pipeline
@@ -35,49 +41,87 @@ def capture_voice_input():
         return ""
 
 # Function to capture webcam input and perform real-time facial emotion analysis using DeepFace
+# def capture_webcam_input():
+#     cap = cv2.VideoCapture(0)  # 0 is the default camera
+#     print("Press 'q' to stop capturing webcam.")
+
+#     while True:
+#         ret, frame = cap.read()
+#         if not ret:
+#             break
+        
+#         # Detect facial emotions using DeepFace
+#         try:
+#             analysis = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
+#             dominant_emotion = analysis[0]['dominant_emotion']
+#             print(f"Detected Emotion: {dominant_emotion}")
+            
+#             # Display the webcam feed with the emotion detected
+#             cv2.putText(frame, f"Emotion: {dominant_emotion}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+#             cv2.imshow('Webcam', frame)
+        
+#         except Exception as e:
+#             print(f"Error in emotion analysis: {e}")
+#             # Display the webcam feed without emotion text
+#             cv2.imshow('Webcam', frame)
+        
+#         if cv2.waitKey(1) & 0xFF == ord('q'):
+#             break
+
+#     cap.release()
+#     cv2.destroyAllWindows()
+
+#     # Return the detected emotion from DeepFace
+#     return {"emotion": dominant_emotion}  # Returns the emotion detected
+
+# Function to capture webcam input and detect emotion using DeepFace
 def capture_webcam_input():
-    cap = cv2.VideoCapture(0)  # 0 is the default camera
-    print("Press 'q' to stop capturing webcam.")
+    cap = cv2.VideoCapture(0)  # Use the default camera
+    emotion = None
 
     while True:
         ret, frame = cap.read()
         if not ret:
             break
         
-        # Detect facial emotions using DeepFace
+        # Detect emotion using DeepFace on the current frame
         try:
             analysis = DeepFace.analyze(frame, actions=['emotion'], enforce_detection=False)
-            dominant_emotion = analysis[0]['dominant_emotion']
-            print(f"Detected Emotion: {dominant_emotion}")
+            emotion = analysis[0]['dominant_emotion']
+
+            # Convert the frame from BGR to RGB for Streamlit (OpenCV uses BGR by default)
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             
-            # Display the webcam feed with the emotion detected
-            cv2.putText(frame, f"Emotion: {dominant_emotion}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-            cv2.imshow('Webcam', frame)
-        
+            # Display the webcam feed with the emotion detected using Streamlit
+            st.image(frame_rgb, channels="RGB", use_container_width=True)
+
+            # Overlay the detected emotion on the frame
+            cv2.putText(frame, f"Emotion: {emotion}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            # Convert the frame to RGB and display in the browser
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            
+            # Display continuously updated video frame in Streamlit
+            st.image(frame_rgb, channels="RGB", use_container_width=True)
+
         except Exception as e:
-            print(f"Error in emotion analysis: {e}")
-            # Display the webcam feed without emotion text
-            cv2.imshow('Webcam', frame)
+            st.write(f"Error in emotion analysis: {e}")
         
+        # Press 'q' to stop the webcam feed in OpenCV
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-    cap.release()
-    cv2.destroyAllWindows()
-
-    # Return the detected emotion from DeepFace
-    return {"emotion": dominant_emotion}  # Returns the emotion detected
+    cap.release()  # Release the webcam
+    return {"emotion": emotion}
 
 # Function to ask questions and gather responses (text, voice, and webcam)
-def ask_questions_and_assess():
-    # Define the questions
-    questions = [
-        "Why do you want to pursue a career in software development?",
-        "What are your strengths as a developer?",
-        "Tell me about a challenge you overcame in your previous projects.",
-    ]
-    
-    results = {}
+def ask_questions_and_assess(questions: list):
+    # results = {}
+    results = {
+        "text_answers": {},
+        "voice_answers": {},
+        "webcam_answers": {}
+    }
 
     for question in questions:
         print(f"\nQuestion: {question}")
@@ -113,12 +157,19 @@ def ask_questions_and_assess():
     return results
 
 # Main function to run the interviewer and collect results
-def run_interview():
+def run_interview(state):
     print("Welcome to the AI-powered interview!")
     print("Answer the questions using text, voice, or webcam.")
     input("Press Enter to start the interview...")
 
-    results = ask_questions_and_assess()
+    # Fetch dynamic questions from the state (which is populated by backend)
+    if "relevant_interview_questions" in state:
+        questions = state["relevant_interview_questions"]
+    else:
+        print("No questions found in state.")
+        return
+
+    results = ask_questions_and_assess(questions)
 
     # Save the results to a file
     with open("interview_results.txt", "w") as file:
@@ -129,9 +180,3 @@ def run_interview():
     
     print("\nInterview Complete! The results have been saved to 'interview_results.txt'.")
 
-# Run the interview function
-run_interview()
-
-# score: This is the confidence score associated with the prediction. It is a probability indicating how confident the model is in its prediction.
-# label: This is the predicted sentiment label, which can be either 'POSITIVE' or 'NEGATIVE'.
-# confidence score: from 0 to 1, where 1 indicates high confidence in the prediction.(float)
