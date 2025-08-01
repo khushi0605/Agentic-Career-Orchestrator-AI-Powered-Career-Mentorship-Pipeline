@@ -1,0 +1,74 @@
+{
+    "resume": {
+        "name": "Tasiana\u00a0Ukura",
+        "skills": [
+            "Python",
+            "Java",
+            "C++",
+            "SQL",
+            "React",
+            "Django",
+            "AWS",
+            "Git"
+        ],
+        "experience": [
+            "Fast - Senior Software Engineer",
+            "\u00b7 Focused on front-end development, providing mentorship and coaching to 6 interns each summer",
+            "Adaptiva - Software Engineer",
+            "engineers and clients to develop enhancements that boosted client satisfaction by 27%",
+            "Expedia Group - Software Engineer Intern",
+            "\u00b7 Worked with 5 other interns under the supervision of senior software engineer full stack development of",
+            "\u00b7 Received coaching and support from peers and senior software engineer, and gained practical experience",
+            "\u00b7 Partnered with interns, using code composition to redesign a clean API that offered increased flexibility"
+        ]
+    },
+    "user_profile": {
+        "GPA": "9",
+        "weak_subjects": [
+            "operating systems",
+            "computer networks",
+            "electrical engineering"
+        ],
+        "onboarding_summary": "Based on the provided answers, here's the extracted information:\n\n1.  **Career Goals:**\n    *   **Short-term:** Go abroad to pursue a Master's degree.\n    *   **Long-term:** Gain job experience in AI/ML (Artificial Intelligence/Machine Learning).\n\n2.  **Interests:**\n    *   Applied Machine Learning\n    *   Data Analysis\n\n3.  **Strengths:**\n    *   Not provided in the answers.\n\n4.  **Weaknesses:**\n    *   Not provided in the answers."
+    },
+    "onboarding_answers": {
+        "interest": "applied machine learning and data analysis ",
+        "strengths": "",
+        "weaknesses": "",
+        "goals": "going abroad to do masters and gaining aiml job experience"
+    },
+    "location": "India",
+    "target_role": "Junior Software Engineer",
+    "track": "Software Engineering",
+    "career_plan": "Welcome to your AI career mentorship journey! It's great to see your ambition and clear vision for your future. Let's map out a strategic plan to help you achieve your goals in applied machine learning and data analysis, including your aspiration for a Master's abroad and gaining valuable job experience.\n\n---\n\n### 1. Where You Are Now (Summary)\n\nYou possess a **strong technical foundation** with impressive proficiency in multiple programming languages (Python, Java, C++, SQL), web technologies (React, Django), cloud platforms (AWS), and version control (Git). Your **outstanding GPA of 9** reflects a solid academic aptitude and dedication. You're currently targeting a Junior Software Engineer role, which is an excellent stepping stone into the tech industry. However, you've wisely identified **Operating Systems, Computer Networks, and Electrical Engineering** as areas where you'd like to strengthen your understanding.\n\n### 2. Where You Want to Go (Goals)\n\nYour ultimate vision is clear and exciting: to **delve into the dynamic fields of applied machine learning and data analysis**. You aim to pursue a **Master's degree abroad**, which will be a significant step towards your long-term career in AIML. Concurrently, you're focused on gaining practical **AIML job experience** to bridge the gap between academia and industry, ensuring you're well-equipped for the challenges and opportunities ahead.\n\n### 3. Key Growth Areas\n\nTo bridge the gap between where you are and where you want to be, we'll focus on three interconnected growth areas:\n\n*   **Technical Proficiency:**\n    *   **Deepen ML/Data Analysis Skills:** Move beyond basic Python to master libraries like NumPy, Pandas, Scikit-learn, and a deep learning framework (TensorFlow or PyTorch). Understand the full ML lifecycle from data collection and cleaning to model deployment.\n    *   **Advanced SQL & Data Warehousing:** While you know SQL, focus on complex queries, optimization, and understanding database design principles relevant to large datasets.\n    *   **Cloud for ML (MLOps Basics):** Leverage your existing AWS knowledge to understand how ML models are deployed, monitored, and scaled in the cloud. Concepts like Docker and CI/CD for ML will be valuable.\n*   **Academic Foundation:**\n    *   **Strengthen Weak Subjects:** Revisit Operating Systems and Computer Networks. These are crucial for understanding distributed systems, cloud computing, and efficient code execution \u2013 all highly relevant even in advanced ML and data engineering.\n    *   **Research & Prerequisites:** Thoroughly research specific Master's programs abroad to understand their academic prerequisites and align your studies accordingly.\n*   **Soft Skills & Professional Development:**\n    *   **Problem-Solving & Critical Thinking:** Essential for tackling complex ML challenges and debugging models.\n    *   **Communication & Presentation:** Articulating technical concepts clearly, collaborating effectively in teams, and presenting your project findings to diverse audiences.\n    *   **Networking & Professional Branding:** Building connections within the AIML community and showcasing your skills through a strong online presence (e.g., LinkedIn, GitHub).\n\n### 4. Actionable Milestones\n\nHere\u2019s how we'll translate these growth areas into concrete steps:\n\n*   **What to Build:**\n    *   **End-to-End ML Projects:** Complete 2-3 substantial applied machine learning projects. Examples include:\n        *   **Predictive Modeling:** Build a model to predict house prices, customer churn, or stock trends using real-world datasets. Focus on data preprocessing, feature engineering, model selection, and evaluation.\n        *   **Natural Language Processing (NLP):** Develop a sentiment analysis tool, a text summarizer, or a chatbot.\n        *   **Computer Vision:** Create an image classification system or an object detection model.\n    *   **Data Analysis Portfolio:** Showcase your SQL skills and data visualization abilities through interactive dashboards or detailed analytical reports.\n    *   **Robust GitHub Portfolio:** Ensure all your projects are well-documented, clean, and easily understandable, demonstrating your coding best practices.\n*   **What to Practice:**\n    *   **Coding Challenges:** Regularly solve LeetCode/HackerRank problems (aim for medium difficulty) focusing on data structures and algorithms relevant to both general software engineering and ML interviews.\n    *   **SQL Mastery:** Practice advanced SQL queries, window functions, and performance optimization techniques.\n    *   **Mock Interviews:** Conduct regular mock technical and behavioral interviews for Junior Software Engineer and entry-level ML roles.\n*   **What to Review:**\n    *   **Core ML Algorithms:** Deep dive into the mathematical foundations and practical applications of key ML algorithms (e.g., linear regression, logistic regression, decision trees, SVMs, neural networks).\n    *   **Foundational CS:** Dedicate specific study time to Operating Systems and Computer Networks using online courses, textbooks, or university lecture notes.\n    *   **Latest Research/Trends:** Stay updated with recent advancements in applied ML and data analysis by reading reputable blogs, research papers, or attending webinars.\n\n### 5. How a Mentor Can Help\n\nAs your mentor, I can provide invaluable support in several ways:\n\n*   **Personalized Learning Path:** Help you navigate the vast world of ML/Data Science, recommending specific courses, resources, and tools tailored to your interests and goals.\n*   **Project Guidance & Review:** Brainstorm impactful project ideas, provide feedback on your code and approach, and help you refine your project narratives for your portfolio.\n*   **Interview Preparation:** Conduct mock interviews, share insights into common technical and behavioral questions, and help you articulate your experiences effectively.\n*   **Academic & Career Advising:** Guide you through the Masters program selection process, review application materials, and connect you with professionals in the AIML field for networking.\n*   **Accountability & Motivation:** Keep you on track with your goals, celebrate your successes, and help you overcome challenges, ensuring consistent progress.\n\n### 6. A Recommended 3-Month Roadmap\n\nThis roadmap provides a structured approach to kickstart your journey. Remember, flexibility is key, and we'll adjust as needed!\n\n**Month 1: Foundation & Exploration**\n\n*   **Technical:**\n    *   **Week 1-2:** Solidify Python for Data Science (NumPy, Pandas). Complete a beginner-friendly online course on Python for Data Analysis.\n    *   **Week 3-4:** Begin an introductory Machine Learning course (e.g., Andrew Ng's ML course on Coursera or a similar specialization). Start exploring a small, guided data analysis project (e.g., a Kaggle \"getting started\" dataset like Titanic or House Prices).\n*   **Academic:**\n    *   **Ongoing:** Allocate 3-5 hours/week to review Operating Systems fundamentals (e.g., process management, memory management).\n    *   **Ongoing:** Begin researching Masters programs abroad that align with AIML, noting their prerequisites, application deadlines, and required exams (GRE/TOEFL/IELTS).\n*   **Soft Skills:**\n    *   **Ongoing:** Identify specific areas for communication improvement (e.g., explaining technical concepts concisely). Start building or refining your professional LinkedIn profile.\n\n**Month 2: Deep Dive & Project Building**\n\n*   **Technical:**\n    *   **Week 5-6:** Learn the basics of a deep learning framework (TensorFlow or PyTorch). Focus on understanding neural network architectures.\n    *   **Week 7-8:** Start your first end-to-end applied ML project. Focus on data cleaning, feature engineering, model training, and basic evaluation. Aim for a clear problem statement and a well-defined scope. Intensify SQL practice with more complex queries and joins.\n*   **Academic:**\n    *   **Ongoing:** Allocate 3-5 hours/week to review Computer Networks fundamentals (e.g., TCP/IP, network protocols).\n    *   **Ongoing:** Narrow down your target Masters programs to 3-5 top choices. Begin gathering required documents and understanding essay prompts.\n*   **Soft Skills:**\n    *   **Ongoing:** Practice explaining your project ideas and technical solutions clearly to a non-technical audience.\n    *   **Ongoing:** Attend a virtual tech meetup or webinar related to ML/Data Science to start networking.\n\n**Month 3: Refinement & Application Preparation**\n\n*   **Technical:**\n    *   **Week 9-10:** Complete and refine your first ML project. Consider deploying it simply (e.g., using Streamlit or a basic Flask app) to showcase practical application.\n    *   **Week 11-12:** Begin your second, slightly more complex ML project, or contribute to an open-source ML project if time permits. Intensify LeetCode practice (medium level) for interview readiness.\n*   **Academic:**\n    *   **Ongoing:** Review any remaining weak areas in OS/Networks.\n    *   **Ongoing:** Begin drafting your Statement of Purpose/Essays for Masters applications. Identify and reach out to potential recommenders.\n*   **Soft Skills:**\n    *   **Ongoing:** Conduct mock interviews for Junior SWE roles, focusing on both technical and behavioral questions. Seek feedback and iterate.\n    *   **Ongoing:** Network with professionals or alumni from your target Masters programs to gain insights and potential referrals.\n\n---\n\nThis plan is ambitious but entirely achievable with your current foundation and dedication. I'm here to guide you every step of the way. Let's make your AIML dreams a reality!",
+    "job_trends": "Top job listings for 'Junior Software Engineer' in India:\n- Junior Software Engineer (Full Stack Developer - Angular & .NET Core) @ SIONIQ\n- Junior Software Developer @ ExxonMobil\n- Java Software Engineer @ Punctuations\n- Junior Software Developer (Tech) @ HyScaler\n- Core Software Engineer @ Avion Full Flight Simulators",
+    "matched_role": "Junior Software Engineer",
+    "next_role": "Junior Software Engineer",
+    "match_score": "",
+    "job_descriptions": {
+        "title": "Junior Software Engineer",
+        "level": 1,
+        "career_track": "Software Engineering",
+        "company": "Tech Solutions",
+        "location": "India",
+        "skills_required": [
+            "Python",
+            "Git",
+            "OOP"
+        ],
+        "description": "As a Junior Software Engineer, you will assist in writing, testing, and debugging basic code for various software applications. You will also support senior engineers in ensuring that projects are completed according to timelines and quality standards. You should be comfortable working with version control tools like Git and familiar with object-oriented programming principles.",
+        "responsibilities": [
+            "Write and test basic code for software applications.",
+            "Collaborate with senior developers to troubleshoot and resolve bugs.",
+            "Review code written by peers and suggest improvements.",
+            "Participate in sprint planning and code review sessions.",
+            "Enhance codebase by following best practices and maintaining standards."
+        ]
+    },
+    "relevant_interview_questions": [
+        "Explain the difference between Git and SVN (Subversion).",
+        "Explain the role of Git branching strategies like GitFlow.",
+        "What is Git rebase, and when would you use it?",
+        "Discuss the importance of automated testing in CI/CD pipelines."
+    ]
+}
