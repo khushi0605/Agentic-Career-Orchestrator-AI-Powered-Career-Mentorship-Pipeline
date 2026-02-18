@@ -1,42 +1,37 @@
-# actual_final_mentor_bot
+# Agentic-Career-Orchestrator: Multi-Agent Pipeline for Semantic Resume Parsing & Career Mentorship
 
-Professional AI-driven career mentorship pipeline: parse resumes, map skills to career trees, generate personalized career plans, score fit for roles, map interview questions, tailor resumes/cover letters, and produce job-application PDFs.
+An enterprise-grade **Agentic AI** pipeline leveraging **LangGraph** and **Large Language Models (LLMs)** to automate end-to-end career development workflows. This system performs granular skill extraction, explainable role-fit scoring, and multimodal feedback generation to bridge the gap between candidate profiles and real-time market requirements.
 
-## What this repo solves
+## 🎯 Problem Statement
+Job seekers and early-career engineers lack an automated, reproducible methodology to:
+- **Map Competencies:** Identify exact placement within multi-level career ladders.
+- **Quantify Skill Gaps:** Discover prioritized, actionable steps for professional progression.
+- **Synthesize Documents:** Generate context-aware, ATS-optimized resumes and cover letters.
+- **Simulate Interviews:** Map industry-standard question banks to individual candidate weaknesses.
 
-Job seekers and early-career engineers need an automated, reproducible way to:
+## 🚀 Key Features
+- **Semantic Resume Parsing:** High-fidelity data extraction from PDFs utilizing specialized NLP parsing stacks.
+- **Stateful Agent Orchestration:** A multi-agent pipeline built on **LangGraph StateGraphs** for resilient decision-making.
+- **Predictive Role-Fit Engine:** Explainable scoring algorithms that map extracted skills to complex career trees.
+- **Multimodal Feedback Module:** Integration of text and interview-vector mapping to provide rubric-aligned mentorship.
+- **Automated Document Synthesis:** Dynamic PDF export of tailored applications using **PyLaTeX**.
+- **Market-Aware Analytics:** Integration with live APIs (SERP/RapidAPI) for real-time trend aggregation.
 
-- Identify where they fit in career ladders,
-- Discover skill gaps and prioritized steps to progress,
-- Generate role-specific resumes, cover letters and application PDFs,
-- Map common interview questions to gaps and strengths.
+## 📂 Repository Architecture
+- `app.py`: Streamlit-based UI for session orchestration and multimodal interaction.
+- `agent_testing.py`: Core **StateGraph** implementations and multi-agent node entry points.
+- `this_one_works.py`: Production-ready pipeline helpers and PDF synthesis utilities.
+- `Software_Questions.csv`: Curated dataset for interview-vector mapping.
 
-This project combines resume parsing, career-tree matching, trend aggregation, and language-model generation into a runnable pipeline and a Streamlit UI.
 
-## Key features
+## 🛠️ Quickstart (macOS/Linux)
 
-- Resume parsing from PDF (parse_resume_from_pdf)
-- Career-tree matching and fit scoring
-- Personalized career-plan generation (LM integration)
-- Skill-gap analysis and interview-question mapping
-- Tailored resume and cover-letter generation
-- Job-application autofill and PDF export
-
-## Repository layout (key files)
-
-- app.py — Streamlit application and session orchestration
-- agent_testing.py — StateGraph / node implementations and pipeline entry points
-- this_one_works.py — working pipeline helpers and PDF generation utilities
-- Software_Questions.csv — interview-question dataset
-- interview_results.txt — example output
-
-Notable functions / entry points:
-
-- parse_resume_from_pdf (resume extraction)
-- generate_career_plan_node (career-plan node)
-- fit_score_from_tree_node (fit scoring)
-- tailor_resume_node (resume tailoring)
-- save_application_pdf / job_application_agent (PDF export & application autofill)
+### 1. Environment Setup
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -m spacy download en_core_web_sm
 
 ## Quickstart (macOS)
 
