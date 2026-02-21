@@ -1,58 +1,40 @@
+
 import streamlit as st
 import json
-from pprint import pprint
-from interactive_interview import capture_voice_input, capture_webcam_input, calculate_similarity
-from agent_testing import (
-    parse_resume_from_pdf,
-    simple_graph,
-    job_application_agent,
-    career_tree,
-    gemini,
-    save_application_pdf,
-    map_keywords_to_interview_questions,
-    interview_question_mapping_node,
-    extract_keywords_from_job_description,
-    load_interview_questions
-)
+import os
 
-# ✅ Initialize chat memory BEFORE anything else
+from src.core.state import State
+from src.data.loaders import load_job_descriptions, load_interview_questions
+from src.data.career_tree import career_tree
+from src.services.pdf import parse_resume_from_pdf
+from src.services.llm import gemini
+from src.services.analysis import calculate_similarity
+from src.ui.multimedia import capture_voice_input, capture_webcam_input
+from src.agents.graph import simple_graph
+from src.agents.job_agent import job_application_agent
+
+# Initialize session state
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
-
 if "resume_data" not in st.session_state:
     st.session_state.resume_data = None
-
 if "graph_output" not in st.session_state:
     st.session_state.graph_output = None
-#initialize relevant interview questions
 if "relevant_interview_questions" not in st.session_state:
     st.session_state.relevant_interview_questions = []
 
-
-# Load job descriptions from a JSON file
-def load_job_descriptions():
-    try:
-        with open('job_descriptions.json', 'r') as f:
-            job_descriptions = json.load(f)
-        return job_descriptions
-    except Exception as e:
-        st.error(f"Error loading job descriptions: {e}")
-        return []
-
-
-
-# Initialize Streamlit interface
+# Page Config
 st.set_page_config(page_title="AI Career Mentor", page_icon="🎓")
 st.title("🎯 AI Career Mentorship System")
 
-# User Info Section
+# User Info
 st.subheader("🧑‍💼 User Info")
 user_id = st.text_input("Enter your user ID or email")
 
-# Tabs for functionality
+# Tabs
 tab1, tab2, tab3 = st.tabs(["🧠 Mentor Guidance", "📄 Application Agent", "💬 Chat with Mentor"])
 
-# Upload Resume
+# --- TAB 1: Mentor Guidance ---
 with tab1:
     st.header("📄 Upload Resume")
 
@@ -60,30 +42,31 @@ with tab1:
     if uploaded_file:
         with open("temp_resume.pdf", "wb") as f:
             f.write(uploaded_file.read())
-        resume = parse_resume_from_pdf("temp_resume.pdf")
-        st.session_state.resume_data = resume
+        
+        try:
+            resume = parse_resume_from_pdf("temp_resume.pdf")
+            st.session_state.resume_data = resume
+            
+            st.success("Resume parsed successfully!")
+            st.write("👤 **Name:**", resume.get("name", "Unknown"))
+            st.write("🛠 **Skills:**", ", ".join(resume.get("skills", [])))
+            st.write("💼 **Experience:**")
+            for exp in resume.get("experience", []):
+                st.write(f"- {exp}")
+        except Exception as e:
+            st.error(f"Error parsing resume: {e}")
 
-        st.success("Resume parsed successfully!")
-        st.write("👤 **Name:**", resume["name"])
-        st.write("🛠 **Skills:**", ", ".join(resume["skills"]))
-        st.write("💼 **Experience:**")
-        for exp in resume["experience"]:
-            st.write(f"- {exp}")
-
-    # Job Search Location and GPA Input
+    # Job Search Inputs
     location = st.text_input("📍 Job Search Location", placeholder="India")
     gpa = st.text_input("Enter your GPA (e.g., 8.5)")
     weak_subjects_input = st.text_area("List a few weak subjects (comma-separated)", placeholder="DBMS, OS, Networks")
 
-    # Onboarding Questions for User Profile
+    # Onboarding Questions
     if "onboarding_step" not in st.session_state:
         st.session_state.onboarding_step = 0
     if "onboarding_answers" not in st.session_state:
         st.session_state.onboarding_answers = {
-            "interest": "",
-            "strengths": "",
-            "weaknesses": "",
-            "goals": ""
+            "interest": "", "strengths": "", "weaknesses": "", "goals": ""
         }
 
     questions = [
@@ -98,50 +81,39 @@ with tab1:
     st.text_input(prompt, key=f"input_{key}", value=st.session_state.onboarding_answers[key])
 
     col1, col2 = st.columns([1, 1])
-
     with col1:
         if step > 0 and st.button("⬅️ Back"):
             st.session_state.onboarding_answers[key] = st.session_state[f"input_{key}"]
             st.session_state.onboarding_step -= 1
+            st.rerun()
 
     with col2:
         if step < len(questions) - 1 and st.button("➡️ Next"):
             st.session_state.onboarding_answers[key] = st.session_state[f"input_{key}"]
             st.session_state.onboarding_step += 1
+            st.rerun()
 
-    # Career Track and Role Selection
-    if "career_tree" not in st.session_state:
-        st.session_state.career_tree = career_tree  # Load the career tree
-###
-    # Load job descriptions from file
+    # Track Selection
     job_descriptions = load_job_descriptions()
+    
+    # Safe fallback if career_tree structure issues or empty
+    tracks = list(career_tree.get("branches", {}).keys())
+    track = st.selectbox("Choose your career track", tracks) if tracks else None
 
-    if not job_descriptions:
-        st.warning("No job descriptions found. Please ensure the JSON file is loaded correctly.")
-    else:
-        track = st.selectbox("Choose your career track", list(st.session_state.career_tree["branches"].keys()))
-
-        # Filter jobs by selected track
-        filtered_jobs = [job for job in job_descriptions if job["career_track"] == track]
+    if track and job_descriptions:
+        filtered_jobs = [job for job in job_descriptions if job.get("career_track") == track]
         roles = [job["title"] for job in filtered_jobs]
-
         role = st.selectbox("Choose your target role", roles)
 
-        # Display job details for selected role
-        selected_job = next(job for job in filtered_jobs if job["title"] == role)
+        if role:
+            selected_job = next((job for job in filtered_jobs if job["title"] == role), None)
+            if selected_job:
+                st.write(f"## {selected_job['title']} at {selected_job.get('company', 'Unknown')}")
+                st.write(f"**Location:** {selected_job.get('location', 'Unknown')}")
+                st.write(f"**Required Skills:** {', '.join(selected_job.get('skills_required', []))}")
+                st.write(f"**Job Description:** {selected_job.get('description', '')}")
 
-        # Display detailed job description
-        st.write(f"## {selected_job['title']} at {selected_job['company']}")
-        st.write(f"**Location:** {selected_job['location']}")
-        st.write(f"**Required Skills:** {', '.join(selected_job['skills_required'])}")
-        st.write(f"**Job Description:** {selected_job['description']}")
-        st.write("### Responsibilities:")
-        for responsibility in selected_job["responsibilities"]:
-            st.write(f"- {responsibility}")
-            #loading from backend job descriptions
-        # job_descriptions = load_job_descriptions()
-        # st.write("Loaded job descriptions:", job_descriptions)
-    # Final Step – Ready to Submit
+    # Pipeline Execution
     if step == len(questions) - 1:
         st.session_state.onboarding_answers[key] = st.session_state[f"input_{key}"]
         st.markdown("---")
@@ -151,189 +123,95 @@ with tab1:
                     "user_id": user_id,
                     "resume": st.session_state.resume_data,
                     "career_tree": {
-                        **career_tree,
-                        "track": track
+                        **career_tree, 
+                        "track": track # Pass selected track to state
                     },
                     "location": location,
                     "target_role": role,
                     "user_profile": {
-                        "GPA": gpa,
+                        "GPA": gpa, 
                         "weak_subjects": [s.strip() for s in weak_subjects_input.split(",") if s.strip()]
                     },
                     "onboarding_answers": st.session_state.onboarding_answers,
-                    "job_descriptions": job_descriptions,
-                    "relevant_interview_questions": st.session_state.relevant_interview_questions  # Add this line
+                    # "job_descriptions": job_descriptions # Don't pass all, let node filter? 
+                    # Actually locate_in_career_tree_node loads and selects job description.
+                    # We can pass initial empty or let it populate.
                 }
-                #debug
-                # st.write("State being passed to backend:", state)
+
                 with st.spinner("Running mentorship pipeline..."):
-                    #just added state for interview question mapping
-                    state = interview_question_mapping_node(state)  # Process the state in the backend
-                    st.session_state.relevant_interview_questions = state.get("relevant_interview_questions", [])
+                    # Invoke Graph
                     output = simple_graph.invoke(state)
                     st.session_state.graph_output = output
+                    st.session_state.relevant_interview_questions = output.get("relevant_interview_questions", [])
                     st.success("Pipeline executed successfully!")
-            else:   
+            else:
                 st.warning("Please enter your user ID to proceed.")
-    
-    # # After mapping interview questions based on job description keywords
-    # st.session_state.relevant_interview_questions = map_keywords_to_interview_questions
-    #previous
-    # if "relevant_interview_questions" in st.session_state:
-    #     relevant_questions = st.session_state.relevant_interview_questions
-    #     st.write("Relevant Questions in Session State:", relevant_questions)
-        
-    #     if relevant_questions:
-    #         st.subheader("📋 Interview Questions to Prepare For")
-    #         for idx, question in enumerate(relevant_questions, 1):
-    #             st.markdown(f"{idx}. {question}")
-    #     else:
-    #         st.write("No relevant interview questions found based on the selected job.")
-    # else:
-    #     st.warning("Please enter your user ID to proceed.")
-    #newwww
-    if "relevant_interview_questions" in st.session_state:
-        relevant_questions = st.session_state.relevant_interview_questions  # Fetch dynamic questions
-        
-        if relevant_questions:
-            st.write("### Interview Questions")
-            
-            # Initialize dictionaries to store responses
-            # voice_answers = {}
-            # webcam_answers = {}
-            # text_answers = {}
-            # similarity_scores = {}
-            user_answers = {
-            "text_answers": {},
-            "voice_answers": {},
-            "webcam_answers": {},
-            "similarity_scores": {}
-        }
-            # dataset = st.session_state.get("Software_Questions.csv", [])
-            dataset = load_interview_questions("Software_Questions.csv")  # Load the dataset
 
-            # Define relevant_answers based on the dataset
-            relevant_answers = {}
-            # for idx, row in dataset.iterrows():
-            #     relevant_answers[idx + 1] = row["Answer"]  # Mapping question number to its corresponding answer
-            print(f"Processing {len(relevant_questions)} relevant questions...")
-            print("Available dataset columns:", dataset.columns.tolist())
+    # Interview Interface
+    if st.session_state.relevant_interview_questions:
+        relevant_questions = st.session_state.relevant_interview_questions
+        st.write("### Interview Questions")
         
-            for idx, question in enumerate(relevant_questions, 1):
-                print(f"\n--- Processing Question {idx} ---")
-                print(f"Question: {question}")
-                
-                # Try exact matching first
-                matching_row = dataset[dataset['Question'].str.strip().str.lower() == question.strip().lower()]
-                
-                if not matching_row.empty:
-                    answer = matching_row.iloc[0]['Answer']
-                    relevant_answers[idx] = answer
-                    print(f"✅ EXACT MATCH FOUND")
-                    print(f"Answer: {answer[:100]}...")
+        # Load dataset for answers
+        dataset = load_interview_questions()
+        relevant_answers = {}
+        
+        # Pre-process answers mapping (simplified logic from original)
+        if not dataset.empty:
+             for idx, question in enumerate(relevant_questions, 1):
+                # Simple exact match attempt
+                match = dataset[dataset['Question'].str.strip().str.lower() == question.strip().lower()]
+                if not match.empty:
+                    relevant_answers[idx] = match.iloc[0]['Answer']
                 else:
-                    print("❌ No exact match found, trying partial matching...")
-                    
-                    # Try partial matching with different strategies
-                    question_words = question.lower().split()
-                    best_match = None
-                    max_word_matches = 0
-                    
-                    for dataset_idx, row in dataset.iterrows():
-                        dataset_question = row['Question'].lower()
-                        word_matches = sum(1 for word in question_words if word in dataset_question)
-                        
-                        if word_matches > max_word_matches and word_matches >= 2:  # At least 2 words must match
-                            max_word_matches = word_matches
-                            best_match = row
-                    
-                    if best_match is not None:
-                        relevant_answers[idx] = best_match['Answer']
-                        print(f"✅ PARTIAL MATCH FOUND ({max_word_matches} words matched)")
-                        print(f"Matched Dataset Question: {best_match['Question']}")
-                        print(f"Answer: {best_match['Answer'][:100]}...")
-                    else:
-                        relevant_answers[idx] = "No matching answer found in dataset"
-                        print(f"❌ NO MATCH FOUND")
+                    relevant_answers[idx] = "No matching answer found in dataset"
 
-                # Debug print to verify final mapping
-                print(f"\n=== FINAL MAPPING SUMMARY ===")
-                for idx, answer in relevant_answers.items():
-                    print(f"Question {idx}: {answer[:50] if answer else 'None'}...")
-                print("===============================\n")
-        
-            # for idx, question in enumerate(relevant_questions,1):
-            #     # Find the question in the dataset that matches
-            #     matching_row = dataset[dataset['Question'] == question]
-            #     print("Matching Row:", matching_row)  # Debugging line to check the matching row
-            #     if not matching_row.empty:
-            #         relevant_answers[question] = matching_row.iloc[0]['Answer']
-            #         # Get the answer for this specific question
-            #     else:
-            #         relevant_answers[question] = None
+        user_answers = {"text": {}, "voice": {}, "webcam": {}, "similarity": {}}
 
-            # debug
-            print("Relevant Answers from Dataset:", relevant_answers)
-            # Iterate through the questions and display them
-            for idx, question in enumerate(relevant_questions, 1):
-                st.subheader(f"Question {idx}: {question}")
-                
-                # Text input for the user to answer
-                text_answer = st.text_area(f"Your answer for question {idx}:", key=f"text_answer_{idx}")
-                if text_answer:
-                    user_answers["text_answers"][idx] = text_answer  # Store text answer in the dictionary
-                     # Find the corresponding answer from the dataset
-                    dataset_answer = relevant_answers.get(idx)  # Retrieve the corresponding answer from the dataset
-                    #debug 1
-                    print(f"User Answer: {text_answer}") 
-                    print(f"Dataset Answer: {dataset_answer}")
-                    if dataset_answer:
-                        similarity = calculate_similarity(text_answer, dataset_answer)  # Calculate similarity
-                        print(f"Similarity Score: {similarity}")
-                        user_answers["similarity_scores"][idx] = similarity  # Store similarity score
-                        st.write(f"**Similarity Score (Text Answer):** {similarity * 100:.2f}%")
+        for idx, question in enumerate(relevant_questions, 1):
+            st.subheader(f"Question {idx}: {question}")
+            
+            # Text Answer
+            text_ans = st.text_area(f"Your answer for Q{idx}:", key=f"text_ans_{idx}")
+            if text_ans:
+                user_answers["text"][idx] = text_ans
+                dataset_ans = relevant_answers.get(idx)
+                if dataset_ans:
+                    sim = calculate_similarity(text_ans, dataset_ans)
+                    user_answers["similarity"][idx] = sim
+                    st.write(f"**Similarity Score:** {sim*100:.2f}%")
 
-                # Voice input option (triggered by button)
-                if st.button(f"Answer question {idx} by Voice"):
-                    voice_answer = capture_voice_input()  # Capture voice input
-                    if voice_answer:
-                        user_answers["voice_answers"][idx] = voice_answer # Store voice response
-                        dataset_answer = relevant_answers.get(idx)
-                        if dataset_answer:
-                            similarity = calculate_similarity(voice_answer, dataset_answer)  # Calculate similarity
-                            user_answers["similarity_scores"][idx] = similarity   # Store similarity score
-                            st.write(f"**Similarity Score (Voice Answer):** {similarity * 100:.2f}%")
-                    st.write(f"Voice Response: {voice_answer}")
-                    
-                # Webcam input option (triggered by button)
-                if st.button(f"Answer question {idx} using Webcam"):
-                    webcam_answer = capture_webcam_input()  # Capture webcam input
-                    if webcam_answer:
-                        user_answers["webcam_answers"][idx] = webcam_answer["emotion"]  # Store webcam emotion
-                    st.write(f"Webcam Emotion Detected: {webcam_answer['emotion']}")
+            # Voice Answer
+            if st.button(f"🎤 Answer Q{idx} by Voice"):
+                voice_ans = capture_voice_input()
+                if voice_ans:
+                    user_answers["voice"][idx] = voice_ans
+                    st.write(f"Voice Response: {voice_ans}")
+                    dataset_ans = relevant_answers.get(idx)
+                    if dataset_ans:
+                         sim = calculate_similarity(voice_ans, dataset_ans)
+                         st.write(f"**Similarity Score (Voice):** {sim*100:.2f}%")
 
-              # Store the results (responses) in session state
-            st.session_state["responses"] = user_answers
-        
-            # Display the responses here if needed
-            st.write("### Interview Responses:")
-            st.write("**Text Answers:**", user_answers["text_answers"])
-            st.write("**Voice Answers:**", user_answers["voice_answers"])
-            st.write("**Webcam Emotion Answers:**", user_answers["webcam_answers"])
-            st.write("**Similarity Scores:**", user_answers["similarity_scores"])
+            # Webcam Answer
+            if st.button(f"📸 Answer Q{idx} using Webcam"):
+               # Note: Streamlit execution model might make this tricky with button + camera_input 
+               # needing a rerun. For now, we assume user interacts with the camera input if visible.
+               st.info("Please use the camera input below if available.")
+            
+            # Always show camera input if they want to use it
+            webcam_res = capture_webcam_input()
+            if webcam_res:
+                user_answers["webcam"][idx] = webcam_res["emotion"]
+                st.write(f"Webcam Emotion: {webcam_res['emotion']}")
 
-        else:
-            st.warning("No relevant interview questions found. Please run the mentorship pipeline first.")
-    else:
-        st.write("No interview questions available.")
-
-    # Show the results
+    # Results Display
     if st.session_state.graph_output:
         out = st.session_state.graph_output
         st.subheader("🔍 Results")
-        st.markdown(f"**Matched Role:** {out['matched_role']}")
-        st.markdown(f"**Current Level:** {out['current_level']}")
-        st.markdown(f"**Next Role:** {out['next_role']}")
+        st.markdown(f"**Matched Role:** {out.get('matched_role')}")
+        st.markdown(f"**Current Level:** {out.get('current_level')}")
+        st.markdown(f"**Next Role:** {out.get('next_role')}")
+        
         if "career_plan" in out:
             st.markdown("**Career Plan:**")
             st.info(out["career_plan"])
@@ -344,79 +222,63 @@ with tab1:
             st.markdown("**Skill Gap Analysis:**")
             st.warning(out["skill_gap_summary"])
         if "tailored_resume" in out:
-            st.markdown("**Tailored Resume:**")
-            st.code(out["tailored_resume"])
+             st.markdown("**Tailored Resume:**")
+             st.code(out["tailored_resume"])
 
+# --- TAB 2: Job Application ---
 with tab2:
     st.header("📄 Job Application Agent")
-
     if not st.session_state.resume_data or not st.session_state.graph_output:
         st.warning("Please complete the Mentor tab first!")
     else:
         resume = st.session_state.resume_data
-        target_role = st.session_state.graph_output["next_role"]
-
-        st.write("ℹ️ We'll generate a job application for the role:", target_role)
-        st.write("Name:", resume.get("name"))
-        st.write("Skills:", ", ".join(resume.get("skills")))
-        st.write("Experience:")
-        for exp in resume.get("experience"):
-            st.write("-", exp)
-
+        target_role = st.session_state.graph_output.get("next_role")
+        
+        st.write(f"ℹ️ Generating application for: **{target_role}**")
+        
         if st.button("✉️ Generate Application & Cover Letter"):
-            with st.spinner("Filling application..."):
-                # job_application_agent(resume, target_role)
-                app_form = job_application_agent(resume, target_role)
+             with st.spinner("Generating..."):
+                 app_form = job_application_agent(resume, target_role)
+                 
+                 pdf_path = "job_application.pdf"
+                 # job_application_agent already saves it, but let's ensure we can read it
+                 if os.path.exists(pdf_path):
+                     with open(pdf_path, "rb") as f:
+                         st.download_button(
+                             label="📄 Download Application PDF",
+                             data=f.read(),
+                             file_name="job_application.pdf",
+                             mime="application/pdf"
+                         )
+                     st.success("Application generated!")
+                 else:
+                     st.error("Failed to generate PDF.")
 
-                # ✅ Save and offer download of PDF
-                from agent_testing import save_application_pdf
-                pdf_path = "job_application.pdf"
-                save_application_pdf(app_form, pdf_path)
-
-                with open(pdf_path, "rb") as f:
-                    pdf_bytes = f.read()
-                    st.download_button(
-                        label="📄 Download Application PDF",
-                        data=pdf_bytes,
-                        file_name=pdf_path,
-                        mime="application/pdf"
-                    )
-            st.success("Application form and cover letter generated and saved!")
-
+# --- TAB 3: Chat ---
 with tab3:
     st.header("💬 Talk to Your AI Mentor")
-
     if not st.session_state.resume_data or not st.session_state.graph_output:
         st.warning("⚠️ Please complete the Resume + Mentor tabs first.")
     else:
-        user_input = st.chat_input("Ask anything about your career path, resume, or job market...")
-        
+        user_input = st.chat_input("Ask anything...")
         if user_input:
-            # Build context prompt for Gemini
             resume = st.session_state.resume_data
             graph = st.session_state.graph_output
-
+            
             context = f"""
-            You are an expert career mentor. The user has uploaded this resume:
-            Name: {resume['name']}
-            Skills: {', '.join(resume['skills'])}
-            Experience: {', '.join(resume['experience'])}
-
-            Based on this, we matched them to the role: {graph['matched_role']} and recommended career path: {graph['career_plan']}.
-            Top job trends: {graph['job_trends']}
-            Tailored Resume: {graph['tailored_resume'][:300]}...
-
-            The user now asked: {user_input}
-            Respond in a friendly, practical way, using the above data.
+            You are an expert career mentor. User Resume: {resume.get('name')}
+            Skills: {', '.join(resume.get('skills', []))}
+            Matched Role: {graph.get('matched_role')}
+            Career Plan: {graph.get('career_plan')}
+            
+            User: {user_input}
             """
-
+            
+            # Simple direct invocation without history context management for now 
+            # (Streamlit refreshes history from session state below)
             response = gemini.invoke(context).content
             st.session_state.chat_history.append(("user", user_input))
             st.session_state.chat_history.append(("bot", response))
 
         for sender, msg in st.session_state.chat_history:
-            if sender == "user":
-                st.chat_message("user").write(msg)
-            else:
-                st.chat_message("assistant").write(msg)
-        
+            st.chat_message("user" if sender == "user" else "assistant").write(msg)
