@@ -3,6 +3,8 @@
 
 An enterprise-grade **Agentic AI** pipeline leveraging **LangGraph** and **Large Language Models (LLMs)** to automate end-to-end career development workflows. This system performs granular skill extraction, explainable role-fit scoring, and multimodal feedback generation to bridge the gap between candidate profiles and real-time market requirements.
 
+Technical Report & Research Draft: For a detailed breakdown of the semantic parsing algorithms and multi-agent orchestration logic, refer to the final_paper.pdf in this repo. 
+
 ## 🎯 Problem Statement
 Job seekers and early-career engineers lack an automated, reproducible methodology to:
 - **Map Competencies:** Identify exact placement within multi-level career ladders.
